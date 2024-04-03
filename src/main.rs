@@ -1,10 +1,16 @@
+mod errors;
+
+use clap::ArgAction;
 use clap::Parser;
 use colored::Colorize;
+use errors::DirDoesNotExist;
 use serde::Deserialize;
 use serde::Serialize;
+use std::fs;
 use std::i64;
-use std::path::Path;
 use std::path::PathBuf;
+
+use crate::errors::DirCreationFailed;
 
 const APP_NAME: &str = "mksls";
 
@@ -92,7 +98,7 @@ struct Cli {
     /// This make the program uninteractive.
     /// Of course, it can't be combined with --always-backup.
     #[clap(verbatim_doc_comment)]
-    #[clap(long, num_args = 0, conflicts_with = "always_backup")]
+    #[clap(long, action=ArgAction::SetTrue, num_args = 0, conflicts_with = "always_backup")]
     always_skip: Option<bool>,
 
     /// Always backup the conflicting file before replacing it by the symlink.
@@ -100,7 +106,7 @@ struct Cli {
     /// This make the program uninteractive.
     /// Of course, it can't be combined with --always-skip.
     #[clap(verbatim_doc_comment)]
-    #[clap(long, num_args = 0, conflicts_with = "always_skip")]
+    #[clap(long, action=ArgAction::SetTrue, num_args = 0, conflicts_with = "always_skip")]
     always_backup: Option<bool>,
 }
 
@@ -133,12 +139,62 @@ impl ::std::default::Default for Config {
     }
 }
 
+#[derive(Debug)]
+struct Params {
+    dir: PathBuf,
+    filename: String,
+    backup_dir: PathBuf,
+    depth: i64,
+    always_skip: bool,
+    always_backup: bool,
+}
+
+impl Params {
+    fn new(cli: Cli, cfg: Config) -> Self {
+        let mut dir = PathBuf::new();
+        dir.push(cli.dir.as_str());
+
+        let filename = cli.filename.unwrap_or(cfg.filename);
+
+        let bd = cli.backup_dir.unwrap_or(cfg.backup_dir);
+        let mut backup_dir = PathBuf::new();
+        backup_dir.push(bd);
+
+        let depth = cli.depth.unwrap_or(cfg.depth);
+
+        let always_skip = cli.always_skip.unwrap_or(cfg.always_skip);
+
+        let always_backup = cli.always_backup.unwrap_or(cfg.always_backup);
+
+        Params {
+            dir,
+            filename,
+            backup_dir,
+            depth,
+            always_skip,
+            always_backup,
+        }
+    }
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     let cfg: Config = confy::load(APP_NAME, APP_NAME)?;
 
-    println!("{:?}", cli);
-    println!("{:?}", cfg);
+    let params = Params::new(cli, cfg);
+    if !params.dir.is_dir() {
+        return Err(Box::new(DirDoesNotExist::new(params.dir)));
+    }
+    if !params.backup_dir.is_dir() {
+        if let Err(err) = fs::create_dir_all(params.backup_dir.as_path()) {
+            return Err(Box::new(DirCreationFailed::new(
+                params.backup_dir,
+                Box::new(err),
+            )));
+        }
+    }
+
+    println!("{:?}", params);
 
     Ok(())
 }
