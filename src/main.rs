@@ -76,7 +76,7 @@ struct Cli {
     /// negative integer, say -1, to mean "unlimited").
     #[clap(verbatim_doc_comment)]
     #[arg(short, long)]
-    depth: Option<String>,
+    depth: Option<i64>,
 
     /// The backup directory in which to store the backed up files during execution.
     ///
