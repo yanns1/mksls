@@ -18,10 +18,14 @@ impl Dir {
     pub fn iter_on_files(&self) -> Result<DirFilesIter, io::Error> {
         DirFilesIter::new(self)
     }
+
+    pub fn iter_on_sls_files(&self, sls_filename: &str) -> Result<DirSlsFilesIter, io::Error> {
+        DirSlsFilesIter::new(self, sls_filename)
+    }
 }
 
 pub struct DirFilesIter {
-    walk_dir: Box<dyn Iterator<Item = walkdir::DirEntry>>,
+    walk_dir: Box<dyn Iterator<Item = PathBuf>>,
 }
 
 impl DirFilesIter {
@@ -29,14 +33,12 @@ impl DirFilesIter {
         let walk_dir = WalkDir::new(&dir.dir)
             .into_iter()
             .filter_map(Result::ok)
-            .filter(|entry| entry.file_type().is_file() || entry.file_type().is_symlink());
+            .filter(|entry| entry.file_type().is_file() || entry.file_type().is_symlink())
+            .map(|entry| entry.into_path());
+
         Ok(DirFilesIter {
             walk_dir: Box::new(walk_dir),
         })
-    }
-
-    fn advance(&mut self) -> Option<PathBuf> {
-        self.walk_dir.next().map(|entry| entry.into_path())
     }
 }
 
@@ -44,7 +46,39 @@ impl Iterator for DirFilesIter {
     type Item = PathBuf;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.advance()
+        self.walk_dir.next()
+    }
+}
+
+pub struct DirSlsFilesIter {
+    walk_dir: Box<dyn Iterator<Item = PathBuf>>,
+}
+
+impl DirSlsFilesIter {
+    fn new(dir: &Dir, sls_filename: &str) -> Result<DirSlsFilesIter, io::Error> {
+        let sls_filename = String::from(sls_filename);
+
+        let walk_dir = WalkDir::new(&dir.dir)
+            .into_iter()
+            .filter_map(Result::ok)
+            .filter(|entry| entry.file_type().is_file() || entry.file_type().is_symlink())
+            .map(|entry| entry.into_path())
+            .filter(move |file| match file.file_name() {
+                Some(os_str) => os_str == &sls_filename[..],
+                None => false,
+            });
+
+        Ok(DirSlsFilesIter {
+            walk_dir: Box::new(walk_dir),
+        })
+    }
+}
+
+impl Iterator for DirSlsFilesIter {
+    type Item = PathBuf;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.walk_dir.next()
     }
 }
 
@@ -184,7 +218,7 @@ mod tests {
     fn dir_iter_on_files_successful() {
         let expected_files: Vec<PathBuf> = mk_tmp_contents()
             .into_iter()
-            .filter(|path| path.is_file())
+            .filter(|path| path.is_file() || path.is_symlink())
             .collect();
 
         let tmp_dir = get_temp_dir();
@@ -194,5 +228,27 @@ mod tests {
 
         let files: Vec<PathBuf> = files_it.unwrap().collect();
         assert!(vec_are_equal(&files, &expected_files));
+    }
+
+    #[test]
+    fn dir_iter_on_sls_files_successful() {
+        let sls_filename = "sls";
+
+        let expected_sls_files: Vec<PathBuf> = mk_tmp_contents()
+            .into_iter()
+            .filter(|path| path.is_file() || path.is_symlink())
+            .filter(|path| match path.file_name() {
+                Some(os_str) => os_str == sls_filename,
+                None => false,
+            })
+            .collect();
+
+        let tmp_dir = get_temp_dir();
+        let tmp_dir = Dir::build(tmp_dir).expect("tmp_dir should exist at this point");
+        let sls_files_it = tmp_dir.iter_on_sls_files(sls_filename);
+        assert!(sls_files_it.is_ok(), "Expected to be able to read tmp_dir.");
+
+        let sls_files: Vec<PathBuf> = sls_files_it.unwrap().collect();
+        assert!(!vec_are_equal(&sls_files, &expected_sls_files));
     }
 }
