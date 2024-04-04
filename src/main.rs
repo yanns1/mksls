@@ -1,7 +1,6 @@
 mod dir;
 mod error;
 
-use anyhow;
 use clap::ArgAction;
 use clap::Parser;
 use colored::Colorize;
@@ -182,11 +181,11 @@ fn main() -> anyhow::Result<()> {
 
     let params = Params::new(cli, cfg);
     if !params.dir.is_dir() {
-        return Err(error::DirDoesNotExist(params.dir))?;
+        Err(error::DirDoesNotExist(params.dir))?;
     }
     if !params.backup_dir.is_dir() {
         if let Err(err) = fs::create_dir_all(params.backup_dir.as_path()) {
-            return Err(error::DirCreationFailed(params.backup_dir, err))?;
+            Err(error::DirCreationFailed(params.backup_dir, err))?;
         }
     }
 
