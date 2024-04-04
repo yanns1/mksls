@@ -1,16 +1,15 @@
-mod errors;
+mod dir;
+mod error;
 
+use anyhow;
 use clap::ArgAction;
 use clap::Parser;
 use colored::Colorize;
-use errors::DirDoesNotExist;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fs;
 use std::i64;
 use std::path::PathBuf;
-
-use crate::errors::DirCreationFailed;
 
 const APP_NAME: &str = "mksls";
 
@@ -177,24 +176,19 @@ impl Params {
     }
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let cfg: Config = confy::load(APP_NAME, APP_NAME)?;
 
     let params = Params::new(cli, cfg);
     if !params.dir.is_dir() {
-        return Err(Box::new(DirDoesNotExist::new(params.dir)));
+        return Err(error::DirDoesNotExist(params.dir))?;
     }
     if !params.backup_dir.is_dir() {
         if let Err(err) = fs::create_dir_all(params.backup_dir.as_path()) {
-            return Err(Box::new(DirCreationFailed::new(
-                params.backup_dir,
-                Box::new(err),
-            )));
+            return Err(error::DirCreationFailed(params.backup_dir, err))?;
         }
     }
-
-    println!("{:?}", params);
 
     Ok(())
 }
