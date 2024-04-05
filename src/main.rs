@@ -1,16 +1,16 @@
 pub mod dir;
+pub mod engine;
 pub mod line;
 
-use anyhow::Context;
 use clap::ArgAction;
 use clap::Parser;
-use colored::Colorize;
+use crossterm::style::Stylize;
+use engine::Engine;
 use serde::Deserialize;
 use serde::Serialize;
+use std::fmt::Debug;
 use std::fs;
 use std::i64;
-use std::io;
-use std::io::BufRead;
 use std::path::PathBuf;
 
 const APP_NAME: &str = "mksls";
@@ -61,7 +61,7 @@ where _project_path_ is '{}/{}.toml'.
 Note:
     - If you didn't write a config file yourself, one with the default values will automatically be written.
     - Paths in the config file should be absolute.
-", "Configuration file:".bold().underline(), APP_NAME, APP_NAME))]
+", "Configuration file:".bold().underlined(), APP_NAME, APP_NAME))]
 struct Cli {
     /// The directory in which to scan for files specifying symlinks.
     #[clap(verbatim_doc_comment)]
@@ -141,7 +141,7 @@ impl ::std::default::Default for Config {
 }
 
 #[derive(Debug)]
-struct Params {
+pub struct Params {
     dir: PathBuf,
     filename: String,
     backup_dir: PathBuf,
@@ -192,20 +192,5 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    let dir = dir::Dir::build(params.dir)?;
-    for ref sls in dir.iter_on_sls_files(&params.filename[..]) {
-        let file = fs::File::open(sls).with_context(|| {
-            format!("Tried to open {}, but unexpectedly failed.", sls.display())
-        })?;
-        let reader = io::BufReader::new(file);
-
-        for (i, line) in reader.lines().enumerate() {
-            let line = line.with_context(|| {
-                format!("Error reading line {} of file {}.", i + 1, sls.display())
-            })?;
-            println!("{}: {:?}", sls.display(), line::line_type(&line));
-        }
-    }
-
-    Ok(())
+    Engine::new(params).run()
 }

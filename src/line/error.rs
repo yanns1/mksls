@@ -1,5 +1,5 @@
 use core::fmt;
-use std::{error, fmt::Debug, io, path::PathBuf};
+use std::{error, fmt::Debug, path::PathBuf};
 
 #[derive(Debug)]
 pub struct InvalidLine {

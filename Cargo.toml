@@ -14,9 +14,10 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 anyhow = "1.0.81"
+chrono = "0.4.37"
 clap = { version = "4.5.4", features = ["derive"] }
-colored = "2.1.0"
 confy = "0.6.1"
+crossterm = "0.27.0"
 lazy_static = "1.4.0"
 regex = "1.10.3"
 serde = { version = "1.0.197", features = ["derive"] }
