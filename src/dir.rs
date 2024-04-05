@@ -127,7 +127,14 @@ mod tests {
         let mut sl_spec_link = tmp_dir.clone();
         sl_spec_link.push("s2");
         let sl_spec = format!("{} {}", sl_spec_target.display(), sl_spec_link.display());
-        if let Err(err) = fs::write(&sls, sl_spec) {
+        let wrong_sl_spec = String::from("/wrong/\"target /wrong/\"link");
+        let lines = vec![
+            sl_spec,
+            String::from(""),
+            String::from("// a comment"),
+            wrong_sl_spec,
+        ];
+        if let Err(err) = fs::write(&sls, lines.join("\n")) {
             panic!("{:?}", err);
         }
         contents.push(sls);

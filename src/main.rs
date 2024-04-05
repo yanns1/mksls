@@ -1,6 +1,8 @@
-mod dir;
-mod error;
+pub mod dir;
+pub mod error;
+pub mod line;
 
+use anyhow::Context;
 use clap::ArgAction;
 use clap::Parser;
 use colored::Colorize;
@@ -8,6 +10,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::fs;
 use std::i64;
+use std::io;
+use std::io::BufRead;
 use std::path::PathBuf;
 
 const APP_NAME: &str = "mksls";
@@ -190,8 +194,18 @@ fn main() -> anyhow::Result<()> {
     }
 
     let dir = dir::Dir::build(params.dir)?;
-    for sls in dir.iter_on_sls_files(&params.filename[..]) {
-        println!("{}", sls.display());
+    for ref sls in dir.iter_on_sls_files(&params.filename[..]) {
+        let file = fs::File::open(sls).with_context(|| {
+            format!("Tried to open {}, but unexpectedly failed.", sls.display())
+        })?;
+        let reader = io::BufReader::new(file);
+
+        for (i, line) in reader.lines().enumerate() {
+            let line = line.with_context(|| {
+                format!("Error reading line {} of file {}.", i + 1, sls.display())
+            })?;
+            println!("{}: {:?}", sls.display(), line::line_type(&line));
+        }
     }
 
     Ok(())
