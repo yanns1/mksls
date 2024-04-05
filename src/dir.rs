@@ -1,4 +1,5 @@
-use crate::error;
+pub mod error;
+
 use std::path::PathBuf;
 use walkdir::WalkDir;
 

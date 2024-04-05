@@ -1,3 +1,5 @@
+pub mod error;
+
 use std::path::PathBuf;
 
 use lazy_static::lazy_static;
