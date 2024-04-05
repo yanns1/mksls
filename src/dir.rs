@@ -1,5 +1,5 @@
 use crate::error;
-use std::{io, path::PathBuf};
+use std::path::PathBuf;
 use walkdir::WalkDir;
 
 #[derive(Debug, Clone)]
@@ -15,11 +15,11 @@ impl Dir {
         Ok(Dir { dir })
     }
 
-    pub fn iter_on_files(&self) -> Result<DirFilesIter, io::Error> {
+    pub fn iter_on_files(&self) -> DirFilesIter {
         DirFilesIter::new(self)
     }
 
-    pub fn iter_on_sls_files(&self, sls_filename: &str) -> Result<DirSlsFilesIter, io::Error> {
+    pub fn iter_on_sls_files(&self, sls_filename: &str) -> DirSlsFilesIter {
         DirSlsFilesIter::new(self, sls_filename)
     }
 }
@@ -29,16 +29,16 @@ pub struct DirFilesIter {
 }
 
 impl DirFilesIter {
-    fn new(dir: &Dir) -> Result<DirFilesIter, io::Error> {
+    fn new(dir: &Dir) -> DirFilesIter {
         let walk_dir = WalkDir::new(&dir.dir)
             .into_iter()
             .filter_map(Result::ok)
             .filter(|entry| entry.file_type().is_file() || entry.file_type().is_symlink())
             .map(|entry| entry.into_path());
 
-        Ok(DirFilesIter {
+        DirFilesIter {
             walk_dir: Box::new(walk_dir),
-        })
+        }
     }
 }
 
@@ -55,7 +55,7 @@ pub struct DirSlsFilesIter {
 }
 
 impl DirSlsFilesIter {
-    fn new(dir: &Dir, sls_filename: &str) -> Result<DirSlsFilesIter, io::Error> {
+    fn new(dir: &Dir, sls_filename: &str) -> DirSlsFilesIter {
         let sls_filename = String::from(sls_filename);
 
         let walk_dir = WalkDir::new(&dir.dir)
@@ -68,9 +68,9 @@ impl DirSlsFilesIter {
                 None => false,
             });
 
-        Ok(DirSlsFilesIter {
+        DirSlsFilesIter {
             walk_dir: Box::new(walk_dir),
-        })
+        }
     }
 }
 
@@ -224,9 +224,7 @@ mod tests {
         let tmp_dir = get_temp_dir();
         let tmp_dir = Dir::build(tmp_dir).expect("tmp_dir should exist at this point");
         let files_it = tmp_dir.iter_on_files();
-        assert!(files_it.is_ok(), "Expected to be able to read tmp_dir.");
-
-        let files: Vec<PathBuf> = files_it.unwrap().collect();
+        let files: Vec<PathBuf> = files_it.collect();
         assert!(vec_are_equal(&files, &expected_files));
     }
 
@@ -246,9 +244,7 @@ mod tests {
         let tmp_dir = get_temp_dir();
         let tmp_dir = Dir::build(tmp_dir).expect("tmp_dir should exist at this point");
         let sls_files_it = tmp_dir.iter_on_sls_files(sls_filename);
-        assert!(sls_files_it.is_ok(), "Expected to be able to read tmp_dir.");
-
-        let sls_files: Vec<PathBuf> = sls_files_it.unwrap().collect();
-        assert!(!vec_are_equal(&sls_files, &expected_sls_files));
+        let sls_files: Vec<PathBuf> = sls_files_it.collect();
+        assert!(vec_are_equal(&sls_files, &expected_sls_files));
     }
 }

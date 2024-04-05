@@ -181,12 +181,17 @@ fn main() -> anyhow::Result<()> {
 
     let params = Params::new(cli, cfg);
     if !params.dir.is_dir() {
-        Err(error::DirDoesNotExist(params.dir))?;
+        return Err(error::DirDoesNotExist(params.dir))?;
     }
     if !params.backup_dir.is_dir() {
         if let Err(err) = fs::create_dir_all(params.backup_dir.as_path()) {
-            Err(error::DirCreationFailed(params.backup_dir, err))?;
+            return Err(error::DirCreationFailed(params.backup_dir, err))?;
         }
+    }
+
+    let dir = dir::Dir::build(params.dir)?;
+    for sls in dir.iter_on_sls_files(&params.filename[..]) {
+        println!("{}", sls.display());
     }
 
     Ok(())
