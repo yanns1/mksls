@@ -227,7 +227,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                             .flush()
                             .with_context(|| "Failed to completely write to stdout.")?;
                         let mut user_input = String::new();
-                        let _ = io::stdin()
+                        io::stdin()
                             .read_line(&mut user_input)
                             .with_context(|| "Error reading your input!")?;
                         // Need this because the newline of Enter is included in the input
