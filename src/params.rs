@@ -15,6 +15,11 @@ pub struct Params {
 
 impl Params {
     pub fn new(cli: Cli, cfg: Config) -> anyhow::Result<Self> {
+        // backup_dir in Config should be absolute
+        if cfg.backup_dir.is_relative() {
+            return Err(anyhow!("Got a relative path for backup_dir in the configuration file, but backup_dir should be absolute."));
+        }
+
         // Enforce mutual exclusivity of always_skip and always_backup for Config
         // (no need for Cli if `conflicts` is used)
         assert!(!(cli.always_skip && cli.always_backup));

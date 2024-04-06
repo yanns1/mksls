@@ -41,10 +41,21 @@ However, if a file is found, you will be asked to choose between:
     [B]ackup all : [b]ackup for the current symlink and all further symlink conflicting with an existing file.
     [o]verwrite : Overwrite the existing file with the symlink (beware data loss!)
     [O]verwrite all : [o]verwrite for the current symlink and all further symlink conflicting with an existing file.
-However it can be made uninteractive by using one (and only) of these options:
+However it can be made uninteractive by using one (and only one) of these options:
     --always-skip (equivalent to always selecting 's')
     --always-backup (equivalent to always selecting 'b')
 There is no --always-overwrite for you to not regret it.
+
+The output of the command will always be a sequence of lines where each line has the format:
+    (<action>) <link> -> <target>
+One such line is printed for each symlink specification encountered, with <action> being one character
+representing what has been done for that symlink:
+    . : Already existed, so has been skipped.
+    d : Done. The symlink was successfully created.
+    s : There was a conflict between the link and an existing file, and choose to [s]kip.
+    b : There was a conflict between the link and an existing file, and choose to [b]ackup.
+    o : There was a conflict between the link and an existing file, and choose to [o]verwrite.
+and <link> and <target> are respectively the link and target of the symlink specification.
 ")]
 // The path of the config file depends on `confy`, which uses `directories`.
 // To keep up to date!
@@ -52,6 +63,8 @@ There is no --always-overwrite for you to not regret it.
 You can provide other default values for the options:
     --filename
     --backup-dir
+    --always-skip
+    --always-backup
 in a TOML configuration file located at:
     (Linux) $XDG_CONFIG_HOME/_project_path_ or .config/_project_path_ if $XDG_CONFIG_HOME is not set
     (Mac) $HOME/Library/Application Support/_project_path_
@@ -85,7 +98,7 @@ pub struct Cli {
 
     /// Always skip the symlinks conflicting with an existing file.
     ///
-    /// This make the program uninteractive.
+    /// This makes the program uninteractive.
     /// Of course, it can't be combined with --always-backup.
     #[clap(verbatim_doc_comment)]
     #[clap(long, conflicts_with = "always_backup")]
@@ -93,7 +106,7 @@ pub struct Cli {
 
     /// Always backup the conflicting file before replacing it by the symlink.
     ///
-    /// This make the program uninteractive.
+    /// This makes the program uninteractive.
     /// Of course, it can't be combined with --always-skip.
     #[clap(verbatim_doc_comment)]
     #[clap(long, conflicts_with = "always_skip")]
@@ -102,7 +115,9 @@ pub struct Cli {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    /// Comment
     filename: String,
+    /// Comment
     backup_dir: PathBuf,
     always_skip: bool,
     always_backup: bool,
