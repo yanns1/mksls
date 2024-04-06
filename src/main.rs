@@ -52,7 +52,6 @@ There is no --always-overwrite for you to not regret it.
 You can provide other default values for the options:
     --filename
     --backup-dir
-    --depth
 in a TOML configuration file located at:
     (Linux) $XDG_CONFIG_HOME/_project_path_ or .config/_project_path_ if $XDG_CONFIG_HOME is not set
     (Mac) $HOME/Library/Application Support/_project_path_
@@ -74,16 +73,6 @@ struct Cli {
     #[clap(verbatim_doc_comment)]
     #[arg(short, long)]
     filename: Option<String>,
-
-    /// The depth up to which files specifying symlinks to make will be considered.
-    ///     
-    /// By default, depth is unlimited, meaning the program will search as deep as
-    /// it can in the input directory.
-    /// If its value is specified in the config, it will be used instead (set to a
-    /// negative integer, say -1, to mean "unlimited").
-    #[clap(verbatim_doc_comment)]
-    #[arg(short, long)]
-    depth: Option<i64>,
 
     /// The backup directory in which to store the backed up files during execution.
     ///
@@ -115,7 +104,6 @@ struct Cli {
 struct Config {
     filename: String,
     backup_dir: String,
-    depth: i64,
     always_skip: bool,
     always_backup: bool,
 }
@@ -133,7 +121,6 @@ impl ::std::default::Default for Config {
                     .to_str()
                     .unwrap(),
             ),
-            depth: -1,
             always_skip: false,
             always_backup: false,
         }
@@ -145,7 +132,6 @@ pub struct Params {
     dir: PathBuf,
     filename: String,
     backup_dir: PathBuf,
-    depth: i64,
     always_skip: bool,
     always_backup: bool,
 }
@@ -161,8 +147,6 @@ impl Params {
         let mut backup_dir = PathBuf::new();
         backup_dir.push(bd);
 
-        let depth = cli.depth.unwrap_or(cfg.depth);
-
         let always_skip = cli.always_skip.unwrap_or(cfg.always_skip);
 
         let always_backup = cli.always_backup.unwrap_or(cfg.always_backup);
@@ -171,7 +155,6 @@ impl Params {
             dir,
             filename,
             backup_dir,
-            depth,
             always_skip,
             always_backup,
         }
