@@ -185,13 +185,13 @@ impl Engine {
             line::LineType::SlsSpec { target, link } => {
                 let link_str = link.to_string_lossy();
                 if !link.exists() {
-                    let _ = unix::fs::symlink(&target, &link).with_context(|| {
+                    unix::fs::symlink(&target, &link).with_context(|| {
                         format!(
                             "Failed to create {} -> {}",
                             link_str,
                             target.to_string_lossy()
                         )
-                    });
+                    })?;
                     println!("(d) {} -> {}", link_str, target.to_string_lossy());
                 } else {
                     if link.is_symlink()
