@@ -39,10 +39,15 @@ pub struct Engine {
 
 impl Engine {
     pub fn new(params: Params) -> Self {
-        Self {
-            action: None,
-            params,
+        let mut action: Option<Action> = None;
+        if params.always_skip {
+            action = Some(Action::Skip);
         }
+        if params.always_backup {
+            action = Some(Action::Backup);
+        }
+
+        Self { action, params }
     }
 
     fn skip(&self, target: &Path, link: &Path) {

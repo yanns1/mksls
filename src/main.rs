@@ -10,7 +10,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Debug;
 use std::fs;
-use std::i64;
 use std::path::PathBuf;
 
 const APP_NAME: &str = "mksls";
