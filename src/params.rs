@@ -22,14 +22,9 @@ impl Params {
             return Err(anyhow!("Got always_skip and always_backup set to true in the configuration file, but only one of them can be true."));
         }
 
-        let mut dir = PathBuf::new();
-        dir.push(cli.dir.as_str());
-
         let filename = cli.filename.unwrap_or(cfg.filename);
 
-        let bd = cli.backup_dir.unwrap_or(cfg.backup_dir);
-        let mut backup_dir = PathBuf::new();
-        backup_dir.push(bd);
+        let backup_dir = cli.backup_dir.unwrap_or(cfg.backup_dir);
 
         let mut always_skip = cli.always_skip;
         let mut always_backup = cli.always_backup;
@@ -39,7 +34,7 @@ impl Params {
         }
 
         Ok(Params {
-            dir,
+            dir: cli.dir,
             filename,
             backup_dir,
             always_skip,

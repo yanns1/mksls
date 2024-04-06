@@ -11,6 +11,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Debug;
 use std::fs;
+use std::path::PathBuf;
 
 const APP_NAME: &str = "mksls";
 
@@ -63,7 +64,7 @@ Note:
 pub struct Cli {
     /// The directory in which to scan for files specifying symlinks.
     #[clap(verbatim_doc_comment)]
-    dir: String,
+    dir: PathBuf,
 
     /// The base (name + extension) of the file(s) specifying symlinks to make.
     ///
@@ -80,7 +81,7 @@ pub struct Cli {
     ///     (Mac) $HOME/Library/Application Support/mksls/backups/
     #[clap(verbatim_doc_comment)]
     #[arg(short, long)]
-    backup_dir: Option<String>,
+    backup_dir: Option<PathBuf>,
 
     /// Always skip the symlinks conflicting with an existing file.
     ///
@@ -102,7 +103,7 @@ pub struct Cli {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     filename: String,
-    backup_dir: String,
+    backup_dir: PathBuf,
     always_skip: bool,
     always_backup: bool,
 }
@@ -111,15 +112,11 @@ impl ::std::default::Default for Config {
     fn default() -> Self {
         Self {
             filename: String::from("sls"),
-            backup_dir: String::from(
-                confy::get_configuration_file_path(APP_NAME, APP_NAME)
-                    .unwrap()
-                    .parent()
-                    .unwrap()
-                    .join("backups/")
-                    .to_str()
-                    .unwrap(),
-            ),
+            backup_dir: confy::get_configuration_file_path(APP_NAME, APP_NAME)
+                .unwrap()
+                .parent()
+                .unwrap()
+                .join("backups/"),
             always_skip: false,
             always_backup: false,
         }
