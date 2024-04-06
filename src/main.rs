@@ -1,8 +1,9 @@
 pub mod dir;
 pub mod engine;
 pub mod line;
+pub mod params;
 
-use clap::ArgAction;
+use crate::params::Params;
 use clap::Parser;
 use crossterm::style::Stylize;
 use engine::Engine;
@@ -10,7 +11,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Debug;
 use std::fs;
-use std::path::PathBuf;
 
 const APP_NAME: &str = "mksls";
 
@@ -60,7 +60,7 @@ Note:
     - If you didn't write a config file yourself, one with the default values will automatically be written.
     - Paths in the config file should be absolute.
 ", "Configuration file:".bold().underlined(), APP_NAME, APP_NAME))]
-struct Cli {
+pub struct Cli {
     /// The directory in which to scan for files specifying symlinks.
     #[clap(verbatim_doc_comment)]
     dir: String,
@@ -87,20 +87,20 @@ struct Cli {
     /// This make the program uninteractive.
     /// Of course, it can't be combined with --always-backup.
     #[clap(verbatim_doc_comment)]
-    #[clap(long, action=ArgAction::SetTrue, num_args = 0, conflicts_with = "always_backup")]
-    always_skip: Option<bool>,
+    #[clap(long, conflicts_with = "always_backup")]
+    always_skip: bool,
 
     /// Always backup the conflicting file before replacing it by the symlink.
     ///
     /// This make the program uninteractive.
     /// Of course, it can't be combined with --always-skip.
     #[clap(verbatim_doc_comment)]
-    #[clap(long, action=ArgAction::SetTrue, num_args = 0, conflicts_with = "always_skip")]
-    always_backup: Option<bool>,
+    #[clap(long, conflicts_with = "always_skip")]
+    always_backup: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Config {
+pub struct Config {
     filename: String,
     backup_dir: String,
     always_skip: bool,
@@ -126,45 +126,11 @@ impl ::std::default::Default for Config {
     }
 }
 
-#[derive(Debug)]
-pub struct Params {
-    dir: PathBuf,
-    filename: String,
-    backup_dir: PathBuf,
-    always_skip: bool,
-    always_backup: bool,
-}
-
-impl Params {
-    fn new(cli: Cli, cfg: Config) -> Self {
-        let mut dir = PathBuf::new();
-        dir.push(cli.dir.as_str());
-
-        let filename = cli.filename.unwrap_or(cfg.filename);
-
-        let bd = cli.backup_dir.unwrap_or(cfg.backup_dir);
-        let mut backup_dir = PathBuf::new();
-        backup_dir.push(bd);
-
-        let always_skip = cli.always_skip.unwrap_or(cfg.always_skip);
-
-        let always_backup = cli.always_backup.unwrap_or(cfg.always_backup);
-
-        Params {
-            dir,
-            filename,
-            backup_dir,
-            always_skip,
-            always_backup,
-        }
-    }
-}
-
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let cfg: Config = confy::load(APP_NAME, APP_NAME)?;
 
-    let params = Params::new(cli, cfg);
+    let params = Params::new(cli, cfg)?;
     if !params.dir.is_dir() {
         return Err(dir::error::DirDoesNotExist(params.dir))?;
     }
