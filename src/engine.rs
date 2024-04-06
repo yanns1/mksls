@@ -176,12 +176,20 @@ impl Engine {
 
         match line::line_type(&line) {
             line::LineType::Empty | line::LineType::Comment => return Ok(()),
-            line::LineType::Invalid => {
-                return Err(line::error::InvalidLine {
-                    file: sls.to_path_buf(),
-                    line_no,
-                })?
-            }
+            line::LineType::Invalid(invalid) => match invalid {
+                line::Invalid::NoMatch => {
+                    return Err(line::error::NoMatchForLine {
+                        file: sls.to_path_buf(),
+                        line_no,
+                    })?
+                }
+                line::Invalid::TargetDoesNotExist => {
+                    return Err(line::error::TargetDoesNotExistForLine {
+                        file: sls.to_path_buf(),
+                        line_no,
+                    })?
+                }
+            },
             line::LineType::SlsSpec { target, link } => {
                 let link_str = link.to_string_lossy();
                 if !link.exists() {

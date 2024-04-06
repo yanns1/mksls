@@ -11,8 +11,14 @@ lazy_static! {
 }
 
 #[derive(Debug)]
+pub enum Invalid {
+    NoMatch,
+    TargetDoesNotExist,
+}
+
+#[derive(Debug)]
 pub enum LineType {
-    Invalid,
+    Invalid(Invalid),
     Empty,
     Comment,
     SlsSpec { target: PathBuf, link: PathBuf },
@@ -28,11 +34,14 @@ pub fn line_type(line: &str) -> LineType {
             Some(caps) => {
                 let mut target = PathBuf::new();
                 target.push(&caps["target"]);
+                if !target.exists() {
+                    return LineType::Invalid(Invalid::TargetDoesNotExist);
+                }
                 let mut link = PathBuf::new();
                 link.push(&caps["link"]);
                 LineType::SlsSpec { target, link }
             }
-            None => LineType::Invalid,
+            None => LineType::Invalid(Invalid::NoMatch),
         }
     }
 }
