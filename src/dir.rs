@@ -85,6 +85,8 @@ impl Iterator for DirSlsFilesIter {
 
 #[cfg(test)]
 mod tests {
+    use serial_test::serial;
+
     use super::*;
     use core::panic;
     use std::fs;
@@ -222,6 +224,7 @@ mod tests {
         );
     }
 
+    #[serial]
     #[test]
     fn dir_iter_on_files_successful() {
         let expected_files: Vec<PathBuf> = mk_tmp_contents()
@@ -236,6 +239,7 @@ mod tests {
         assert!(vec_are_equal(&files, &expected_files));
     }
 
+    #[serial]
     #[test]
     fn dir_iter_on_sls_files_successful() {
         let sls_filename = "sls";
