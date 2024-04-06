@@ -192,7 +192,7 @@ impl Engine {
             },
             line::LineType::SlsSpec { target, link } => {
                 let link_str = link.to_string_lossy();
-                if !link.exists() {
+                if !link.is_symlink() && !link.exists() {
                     unix::fs::symlink(&target, &link).with_context(|| {
                         format!(
                             "Failed to create {} -> {}",
