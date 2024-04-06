@@ -187,7 +187,7 @@ impl Engine {
                             target.to_string_lossy()
                         )
                     });
-                    println!("(done) {} -> {}", link_str, target.to_string_lossy());
+                    println!("(d) {} -> {}", link_str, target.to_string_lossy());
                 } else {
                     if link.is_symlink()
                         && fs::read_link(&link).with_context(|| format!("A symlink of path {} already exists, but failed to read it to check if it is the one you want to create or not.
@@ -215,7 +215,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
 
                     loop {
                         print!(
-                            "{INDENT}[s]kip [S]kip [b]ackup [B]ackup [o]verwrite [O]verwrite [h]elp: "
+                            "{INDENT}[s]kip [S]kip all [b]ackup [B]ackup all [o]verwrite [O]verwrite all [h]elp: "
                         );
                         n_lines_to_overwrite += 1;
                         stdout
