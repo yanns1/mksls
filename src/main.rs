@@ -74,6 +74,8 @@ Note:
     - If you didn't write a config file yourself, one with the default values will automatically be written.
     - Paths in the config file should be absolute.
 ", "Configuration file:".bold().underlined(), APP_NAME, APP_NAME))]
+/// The struct that defines mksls' CLI.
+/// It derives [`clap::Parser`].
 pub struct Cli {
     /// The directory in which to scan for files specifying symlinks.
     #[clap(verbatim_doc_comment)]
@@ -114,12 +116,19 @@ pub struct Cli {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+/// The struct that defines the configuration file entries.
+/// It is then used with [`confy::load()`].
 pub struct Config {
-    /// Comment
+    /// Same as [`Cli::filename`].
     filename: String,
-    /// Comment
+
+    /// Same as [`Cli::backup_dir`].
     backup_dir: PathBuf,
+
+    /// Same as [`Cli::always_skip`].
     always_skip: bool,
+
+    /// Same as [`Cli::always_backup`].
     always_backup: bool,
 }
 
