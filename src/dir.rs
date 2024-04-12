@@ -3,6 +3,7 @@ pub mod error;
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
+/// Represents mksls' input directory.
 #[derive(Debug, Clone)]
 pub struct Dir {
     dir: PathBuf,

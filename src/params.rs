@@ -4,12 +4,26 @@ use anyhow::anyhow;
 
 use crate::{Cli, Config};
 
+/// An aggregation of configurations coming from the CLI ([`Cli`]) and the configuration file
+/// ([`Config`]).
+/// A configuration coming from the CLI always takes precedence.
+/// A configuration coming from the configuration file is applied only when the equivalent is not
+/// specified at the CLI level.
 #[derive(Debug)]
 pub struct Params {
+    /// Same as [`Cli::dir`].
     pub dir: PathBuf,
+
+    /// Same as [`Cli::filename`].
     pub filename: String,
+
+    /// Same as [`Cli::backup_dir`].
     pub backup_dir: PathBuf,
+
+    /// Same as [`Cli::always_skip`].
     pub always_skip: bool,
+
+    /// Same as [`Cli::always_backup`].
     pub always_backup: bool,
 }
 

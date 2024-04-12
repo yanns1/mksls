@@ -6,13 +6,17 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 lazy_static! {
+    /// A regex to parse a line expected to contain a symlink specification.
     static ref SLS_SPEC_RE: Regex =
         Regex::new(r#"^\s*(?<target>[^\s"]+|"[^"]+")\s+(?<link>[^\s"]+|"[^"]+")\s*$"#).unwrap();
 }
 
+/// Ways a line expected to contain a symlink specification can be invalid.
 #[derive(Debug)]
 pub enum Invalid {
+    /// When the line doesn't match [`struct@SLS_SPEC_RE`].
     NoMatch,
+    /// When the line matches [`struct@SLS_SPEC_RE`] but the target of the symlink doesn't exist.
     TargetDoesNotExist,
 }
 

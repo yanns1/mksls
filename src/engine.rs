@@ -24,6 +24,7 @@ const ACTION_HELP: &str = "[s]kip : Don't create the symlink and move on to the 
 [o]verwrite : Overwrite the existing file with the symlink (beware data loss!)
 [O]verwrite all : [o]verwrite for the current symlink and all further symlink conflicting with an existing file.";
 
+/// The possible actions to take when a symlink about to be made conflicts with an existing file.
 #[derive(Debug)]
 enum Action {
     Skip,
@@ -31,8 +32,10 @@ enum Action {
     Overwrite,
 }
 
+/// The heart of the program, where the action takes place.
 #[derive(Debug)]
 pub struct Engine {
+    /// The action to be taken at any given time.
     action: Option<Action>,
     params: Params,
 }
