@@ -41,7 +41,7 @@ If you prefer not installing yet another program and have a script you can easil
 
 - None
 
-TODO
+See https://github.com/yanns1/mksls/releases.
 
 ### Download mksls from crates.io
 
