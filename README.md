@@ -162,5 +162,6 @@ Note:
 ## TODO
 
 - Make shell completions (but too cumbersome for now).
+- Integration tests
 
 [^1]: In fact the full help is so detailed that you will certainly prefer the shorter version from `mksls -h` once you get the gist of it.
