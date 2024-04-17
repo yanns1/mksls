@@ -9,7 +9,7 @@ use crate::{Cli, Config};
 /// A configuration coming from the CLI always takes precedence.
 /// A configuration coming from the configuration file is applied only when the equivalent is not
 /// specified at the CLI level.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Params {
     /// Same as [`Cli::dir`].
     pub dir: PathBuf,
@@ -59,5 +59,103 @@ impl Params {
             always_skip,
             always_backup,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[derive(Debug)]
+    struct TestCase {
+        cli: Cli,
+        cfg: Config,
+        params: Params,
+    }
+
+    #[test]
+    fn cli_takes_precedence_on_config() {
+        let test_cases = vec![
+            TestCase {
+                // Cli takes precedence
+                cli: Cli {
+                    dir: PathBuf::from("dir"),
+                    filename: Some(String::from("cli_filename")),
+                    backup_dir: Some(PathBuf::from("/cli/backup/dir")),
+                    always_skip: false,
+                    always_backup: true,
+                },
+                cfg: Config {
+                    filename: String::from("cfg_filename"),
+                    backup_dir: PathBuf::from("/cfg/backup/dir"),
+                    always_skip: true,
+                    always_backup: false,
+                },
+                params: Params {
+                    dir: PathBuf::from("dir"),
+                    filename: String::from("cli_filename"),
+                    backup_dir: PathBuf::from("/cli/backup/dir"),
+                    always_skip: false,
+                    always_backup: true,
+                },
+            },
+            // When option not defined via Cli, backup to Config
+            TestCase {
+                cli: Cli {
+                    dir: PathBuf::from("dir"),
+                    filename: None,
+                    backup_dir: None,
+                    always_skip: false,
+                    always_backup: false,
+                },
+                cfg: Config {
+                    filename: String::from("cfg_filename"),
+                    backup_dir: PathBuf::from("/cfg/backup/dir"),
+                    always_skip: true,
+                    always_backup: false,
+                },
+                params: Params {
+                    dir: PathBuf::from("dir"),
+                    filename: String::from("cfg_filename"),
+                    backup_dir: PathBuf::from("/cfg/backup/dir"),
+                    always_skip: true,
+                    always_backup: false,
+                },
+            },
+            // A mix of options coming from Cli and others from Config
+            TestCase {
+                cli: Cli {
+                    dir: PathBuf::from("dir"),
+                    filename: Some(String::from("cli_filename")),
+                    backup_dir: None,
+                    always_skip: false,
+                    always_backup: false,
+                },
+                cfg: Config {
+                    filename: String::from("cfg_filename"),
+                    backup_dir: PathBuf::from("/cfg/backup/dir"),
+                    always_skip: true,
+                    always_backup: false,
+                },
+                params: Params {
+                    dir: PathBuf::from("dir"),
+                    filename: String::from("cli_filename"),
+                    backup_dir: PathBuf::from("/cfg/backup/dir"),
+                    always_skip: true,
+                    always_backup: false,
+                },
+            },
+        ];
+
+        for test_case in test_cases {
+            let params = Params::new(test_case.cli, test_case.cfg).expect(
+                "Params::new should have succeed. There must be an error in the test case.",
+            );
+            assert_eq!(
+                params, test_case.params,
+                "Expected {:?}, but got {:?}",
+                test_case.params, params
+            );
+        }
     }
 }
