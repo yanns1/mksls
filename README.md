@@ -49,7 +49,7 @@ See https://github.com/yanns1/mksls/releases.
 
 - You need Rust installed (more specifically cargo).
 
-TODO
+Run `cargo install mksls` in your terminal.
 
 ### Build from source
 
