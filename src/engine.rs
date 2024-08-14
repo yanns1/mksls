@@ -12,7 +12,6 @@ use std::io::Write;
 use std::os::unix;
 use std::path::Path;
 use std::path::PathBuf;
-use std::u64;
 
 use crate::{dir, Params};
 

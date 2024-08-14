@@ -130,7 +130,7 @@ pub struct Config {
     always_backup: bool,
 }
 
-impl ::std::default::Default for Config {
+impl std::default::Default for Config {
     fn default() -> Self {
         Self {
             filename: String::from("sls"),
@@ -151,11 +151,14 @@ fn main() -> anyhow::Result<()> {
 
     let params = Params::new(cli, cfg)?;
     if !params.dir.is_dir() {
-        return Err(dir::error::DirDoesNotExist(params.dir))?;
+        Err(dir::error::DirDoesNotExist(params.dir.clone()))?;
     }
     if !params.backup_dir.is_dir() {
         if let Err(err) = fs::create_dir_all(params.backup_dir.as_path()) {
-            return Err(dir::error::DirCreationFailed(params.backup_dir, err))?;
+            Err(dir::error::DirCreationFailed(
+                params.backup_dir.clone(),
+                err,
+            ))?;
         }
     }
 
