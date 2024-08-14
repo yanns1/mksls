@@ -13,9 +13,9 @@ alt="Crates.io version" /></a>
 
 <!-- Docs -->
 
-<a href="https://docs.rs/mksls">
-<img src="https://img.shields.io/docsrs/mksls?style=flat-square
-" alt="docs.rs docs" /></a>
+<!-- <a href="https://docs.rs/mksls"> -->
+<!-- <img src="https://img.shields.io/docsrs/mksls/latest?style=flat-square -->
+<!-- " alt="docs.rs docs" /></a> -->
 
 mksls is a command-line program that makes the symlinks specified in user-defined files (see [Usecase](#usecase)).
 Unix operating systems are supported (e.g. Linux distros, MacOS), but not others (e.g. Windows).
