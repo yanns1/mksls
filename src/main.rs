@@ -4,7 +4,7 @@ pub mod line;
 pub mod params;
 
 use crate::params::Params;
-use clap::Parser;
+use clap::{crate_name, Parser};
 use crossterm::style::Stylize;
 use engine::Engine;
 use serde::Deserialize;
@@ -13,10 +13,8 @@ use std::fmt::Debug;
 use std::fs;
 use std::path::PathBuf;
 
-const APP_NAME: &str = "mksls";
-
 #[derive(Parser, Debug)]
-#[command(name = APP_NAME)]
+#[command(name = crate_name!())]
 #[command(version)]
 #[command(about = "Make symlinks specified in files.")]
 #[command(long_about = "Make symlinks specified in files.
@@ -73,7 +71,7 @@ where _project_path_ is '{}/{}.toml'.
 Note:
     - If you didn't write a config file yourself, one with the default values will automatically be written.
     - Paths in the config file should be absolute.
-", "Configuration file:".bold().underlined(), APP_NAME, APP_NAME))]
+", "Configuration file:".bold().underlined(), crate_name!(), crate_name!()))]
 /// The struct that defines mksls' CLI.
 /// It derives [`clap::Parser`].
 pub struct Cli {
@@ -136,7 +134,7 @@ impl ::std::default::Default for Config {
     fn default() -> Self {
         Self {
             filename: String::from("sls"),
-            backup_dir: confy::get_configuration_file_path(APP_NAME, APP_NAME)
+            backup_dir: confy::get_configuration_file_path(crate_name!(), crate_name!())
                 .unwrap()
                 .parent()
                 .unwrap()
@@ -149,7 +147,7 @@ impl ::std::default::Default for Config {
 
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
-    let cfg: Config = confy::load(APP_NAME, APP_NAME)?;
+    let cfg: Config = confy::load(crate_name!(), crate_name!())?;
 
     let params = Params::new(cli, cfg)?;
     if !params.dir.is_dir() {
