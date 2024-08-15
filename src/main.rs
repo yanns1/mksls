@@ -16,45 +16,6 @@ use std::path::PathBuf;
 #[derive(Parser, Debug)]
 #[command(name = crate_name!())]
 #[command(version)]
-#[command(about = "Make symlinks specified in files.")]
-#[command(long_about = "Make symlinks specified in files.
---------
-This program makes the symlinks specified in files within DIR having the base FILE.
-A given file contains zero or more symlink specifications, where a symlink specification is a line with the following format:
-<TARGET_PATH> <SYMLINK_PATH>
-Notice the space in between.
-
-There can be multiple spaces, but there needs to be at least one.
-If a path contains a space, wrap it in double quotes.
-For example, if <TARGET_PATH> contains a space, write this instead:
-\"<TARGET_PATH>\" <SYMLINK_PATH>
-If you have a double quote in one of the paths... Change it!
-
-By default, the program is interactive.
-If no file is found where a given symlink is about to be made, the symlink will be made.
-However, if a file is found, you will be asked to choose between:
-    [s]kip : Don't create the symlink and move on to the next one.
-    [S]kip all : [s]kip for the current symlink and all further symlink conflicting with an existing file.
-    [b]ackup : Move the existing file in BACKUP_DIR, then make the current symlink.
-    [B]ackup all : [b]ackup for the current symlink and all further symlink conflicting with an existing file.
-    [o]verwrite : Overwrite the existing file with the symlink (beware data loss!)
-    [O]verwrite all : [o]verwrite for the current symlink and all further symlink conflicting with an existing file.
-However it can be made uninteractive by using one (and only one) of these options:
-    --always-skip (equivalent to always selecting 's')
-    --always-backup (equivalent to always selecting 'b')
-There is no --always-overwrite for you to not regret it.
-
-The output of the command will always be a sequence of lines where each line has the format:
-    (<action>) <link> -> <target>
-One such line is printed for each symlink specification encountered, with <action> being one character
-representing what has been done for that symlink:
-    . : Already existed, so has been skipped.
-    d : Done. The symlink was successfully created.
-    s : There was a conflict between the link and an existing file, and choose to [s]kip.
-    b : There was a conflict between the link and an existing file, and choose to [b]ackup.
-    o : There was a conflict between the link and an existing file, and choose to [o]verwrite.
-and <link> and <target> are respectively the link and target of the symlink specification.
-")]
 // The path of the config file depends on `confy`, which uses `directories`.
 // To keep up to date!
 #[command(after_help = format!("{}
@@ -72,8 +33,44 @@ Note:
     - If you didn't write a config file yourself, one with the default values will automatically be written.
     - Paths in the config file should be absolute.
 ", "Configuration file:".bold().underlined(), crate_name!(), crate_name!()))]
-/// The struct that defines mksls' CLI.
-/// It derives [`clap::Parser`].
+#[clap(verbatim_doc_comment)]
+/// Make symlinks specified in files.
+///
+/// This program makes the symlinks specified in files within DIR having the base FILENAME.
+/// A given file contains zero or more symlink specifications, where a symlink specification is a line with the following format:
+///     <TARGET_PATH> <SYMLINK_PATH>
+/// Notice the space in between.
+///
+/// There can be multiple spaces, but there needs to be at least one.
+/// If a path contains a space, wrap it in double quotes.
+/// For example, if <TARGET_PATH> contains a space, write this instead:
+///     "<TARGET_PATH>" <SYMLINK_PATH>
+/// If you have a double quote in one of the paths... Change it!
+///
+/// By default, the program is interactive.
+/// If no file is found where a given symlink is about to be made, the symlink will be made.
+/// However, if a file is found, you will be asked to choose between:
+///     [s]kip : Don't create the symlink and move on to the next one.
+///     [S]kip all : [s]kip for the current symlink and all further symlink conflicting with an existing file.
+///     [b]ackup : Move the existing file in BACKUP_DIR, then make the current symlink.
+///     [B]ackup all : [b]ackup for the current symlink and all further symlink conflicting with an existing file.
+///     [o]verwrite : Overwrite the existing file with the symlink (beware data loss!)
+///     [O]verwrite all : [o]verwrite for the current symlink and all further symlink conflicting with an existing file.
+/// However it can be made uninteractive by using one (and only one) of these options:
+///     --always-skip (equivalent to always selecting 's')
+///     --always-backup (equivalent to always selecting 'b')
+/// There is no --always-overwrite for you to not regret it.
+///
+/// The output of the command will always be a sequence of lines where each line has the format:
+///     (<action>) <link> -> <target>
+/// One such line is printed for each symlink specification encountered, with <action> being one character
+/// representing what has been done for that symlink:
+///     . : Already existed, so has been skipped.
+///     d : Done. The symlink was successfully created.
+///     s : There was a conflict between the link and an existing file, and choose to [s]kip.
+///     b : There was a conflict between the link and an existing file, and choose to [b]ackup.
+///     o : There was a conflict between the link and an existing file, and choose to [o]verwrite.
+/// and <link> and <target> are respectively the link and target of the symlink specification.
 pub struct Cli {
     /// The directory in which to scan for files specifying symlinks.
     #[clap(verbatim_doc_comment)]
