@@ -1,3 +1,5 @@
+//! Everything related to the app's CLI.
+
 use clap::{crate_name, Parser};
 use crossterm::style::Stylize;
 use std::fmt::Debug;
@@ -60,6 +62,18 @@ Note:
     - If you didn't write a config file yourself, one with the default values will automatically be written.
     - Paths in the config file should be absolute.
 ", "Configuration file:".bold().underlined(), crate_name!(), crate_name!()))]
+/// Defines the command-line interface of the app.
+///
+/// This is a [`clap::Parser`].
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use mksls::cli::Cli;
+/// use clap::Parser;
+///
+/// let args = Cli::parse();
+/// ```
 pub struct Cli {
     /// The directory in which to scan for files specifying symlinks.
     #[clap(verbatim_doc_comment)]

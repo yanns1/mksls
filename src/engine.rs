@@ -1,3 +1,5 @@
+//! Where most of the app's logic resides.
+
 use crate::dir::Dir;
 use crate::line;
 use crate::line::error::{NoMatchForLine, TargetDoesNotExistForLine};
@@ -28,12 +30,36 @@ const ACTION_HELP: &str = "[s]kip : Don't create the symlink and move on to the 
 /// The possible actions to take when a symlink about to be made conflicts with an existing file.
 #[derive(Debug)]
 enum Action {
+    /// Don't make the symlink and move on.
     Skip,
+    /// Backup the existing file, then make the symlink over the existing file.
     Backup,
+    /// Make the symlink without backup, overwriting the existing file.
     Overwrite,
 }
 
-/// The heart of the program, where the action takes place.
+/// The engine of the program, where the app's pieces are glued together.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use clap::Parser;
+/// use mksls::cfg::Config;
+/// use mksls::cli::Cli;
+/// use mksls::engine::Engine;
+/// use mksls::params::Params;
+///
+/// fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let cli = Cli::parse();
+///     let cfg: Config = confy::load("my_crate", "config")?;
+///     let params = Params::new(cli, cfg)?;
+///     let engine = Engine::new(params);
+///
+///     engine.run()?;
+///
+///     Ok(())
+/// }
+/// ```
 #[derive(Debug)]
 pub struct Engine {
     /// The action to be taken at any given time.
@@ -42,6 +68,29 @@ pub struct Engine {
 }
 
 impl Engine {
+    /// Creates an engine.
+    ///
+    /// # Parameters
+    ///
+    /// * `params` - Parameters to customize the engine's behavior.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use clap::Parser;
+    /// use mksls::cfg::Config;
+    /// use mksls::cli::Cli;
+    /// use mksls::engine::Engine;
+    /// use mksls::params::Params;
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let cli = Cli::parse();
+    /// let cfg: Config = confy::load("my_crate", "config")?;
+    /// let params = Params::new(cli, cfg)?;
+    /// let engine = Engine::new(params);
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new(params: Params) -> Self {
         let mut action: Option<Action> = None;
         if params.always_skip {
@@ -327,6 +376,27 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
         Ok(())
     }
 
+    /// Runs the engine.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use clap::Parser;
+    /// use mksls::cfg::Config;
+    /// use mksls::cli::Cli;
+    /// use mksls::engine::Engine;
+    /// use mksls::params::Params;
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let cli = Cli::parse();
+    /// let cfg: Config = confy::load("my_crate", "config")?;
+    /// let params = Params::new(cli, cfg)?;
+    /// let engine = Engine::new(params);
+    ///
+    /// engine.run()?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn run(mut self) -> anyhow::Result<()> {
         let dir = Dir::build(self.params.dir.clone())?;
         for sls in dir.iter_on_sls_files(&self.params.filename[..]) {

@@ -1,11 +1,11 @@
+//! Errors related to [`crate::dir::Dir`].
+
 use core::fmt;
 use std::{error, fmt::Debug, io, path::PathBuf};
 
 #[derive(Debug)]
+/// An error for when a path points to a non-existing diretory.
 pub struct DirDoesNotExist(pub PathBuf);
-
-#[derive(Debug)]
-pub struct DirCreationFailed(pub PathBuf, pub io::Error);
 
 impl fmt::Display for DirDoesNotExist {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -20,6 +20,10 @@ impl fmt::Display for DirDoesNotExist {
 }
 
 impl error::Error for DirDoesNotExist {}
+
+#[derive(Debug)]
+/// An error for when the creation of a directory failed for a given path.
+pub struct DirCreationFailed(pub PathBuf, pub io::Error);
 
 impl fmt::Display for DirCreationFailed {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

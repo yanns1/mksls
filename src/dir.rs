@@ -1,15 +1,67 @@
+//! Types and methods for easy iteration over files in a directory.
+
 pub mod error;
 
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
-/// Represents mksls' input directory.
+/// A wrapper around [`std::path::PathBuf`] that represents a valid directory.
+///
+/// Different iterators over the files of that directory are made available.
+///
+/// # Examples
+///
+/// Iterate over files in a directory:
+///
+/// ```rust,no_run
+/// # use mksls::dir::Dir;
+/// # use std::path::PathBuf;
+/// #
+/// let dir = Dir::build(PathBuf::from("/my/dir/path"))
+///               .expect("Expected path to point to an existing directory.");
+///
+/// for file in dir.iter_on_files() {
+///     println!("{}", file.to_string_lossy());
+/// }
+/// ```
+///
+/// Iterate over "symlink-specification" files in a directory:
+///
+/// ```rust,no_run
+/// # use mksls::dir::Dir;
+/// # use std::path::PathBuf;
+/// #
+/// let dir = Dir::build(PathBuf::from("/my/dir/path"))
+///               .expect("Expected path to point to an existing directory.");
+///
+/// for sls_file in dir.iter_on_sls_files("sls") {
+///     println!("{}", sls_file.to_string_lossy());
+/// }
+/// ```
 #[derive(Debug, Clone)]
 pub struct Dir {
     dir: PathBuf,
 }
 
 impl Dir {
+    /// Creates a new [`Dir`], but can fail.
+    ///
+    /// If the input path does not point to an _existing directory_ an error
+    /// is returned.
+    ///
+    /// # Parameters
+    ///
+    /// * `dir` - The path to the directory.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # use mksls::dir::Dir;
+    /// # use std::path::PathBuf;
+    /// #
+    /// let dir = Dir::build(PathBuf::from("/my/dir/path"))
+    ///               .expect("Expected path to point to an existing directory.");
+    /// ```
     pub fn build(dir: PathBuf) -> Result<Self, error::DirDoesNotExist> {
         if !dir.is_dir() {
             return Err(error::DirDoesNotExist(dir));
@@ -17,15 +69,53 @@ impl Dir {
         Ok(Dir { dir })
     }
 
+    /// Creates an iterator over the directory's files ([`DirFilesIter`]).
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # use mksls::dir::Dir;
+    /// # use std::path::PathBuf;
+    /// #
+    /// let dir = Dir::build(PathBuf::from("/my/dir/path"))
+    ///               .expect("Expected path to point to an existing directory.");
+    ///
+    /// for file in dir.iter_on_files() {
+    ///     println!("{}", file.to_string_lossy());
+    /// }
+    /// ```
     pub fn iter_on_files(&self) -> DirFilesIter {
         DirFilesIter::new(self)
     }
 
+    /// Creates an iterator over the directory's "symlink-specification" files ([`DirSlsFilesIter`]).
+    ///
+    /// # Parameters
+    ///
+    /// * `sls_filename` - The filename (name + extension) to look for.
+    ///
+    ///     Files with a filename equal to `sls_filename` will be considered
+    ///     "symlink-specification" files.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # use mksls::dir::Dir;
+    /// # use std::path::PathBuf;
+    /// #
+    /// let dir = Dir::build(PathBuf::from("/my/dir/path"))
+    ///               .expect("Expected path to point to an existing directory.");
+    ///
+    /// for sls_file in dir.iter_on_sls_files("sls") {
+    ///     println!("{}", sls_file.to_string_lossy());
+    /// }
+    /// ```
     pub fn iter_on_sls_files(&self, sls_filename: &str) -> DirSlsFilesIter {
         DirSlsFilesIter::new(self, sls_filename)
     }
 }
 
+/// An iterator over a directory's files.
 pub struct DirFilesIter {
     walk_dir: Box<dyn Iterator<Item = PathBuf>>,
 }
@@ -52,6 +142,7 @@ impl Iterator for DirFilesIter {
     }
 }
 
+/// An iterator over a directory's "symlink-specification" files.
 pub struct DirSlsFilesIter {
     walk_dir: Box<dyn Iterator<Item = PathBuf>>,
 }
