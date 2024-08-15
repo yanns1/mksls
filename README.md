@@ -71,7 +71,7 @@ Clone this repo and run `./install.sh` from the root of the repo (you might need
 
 Everything is explained in `mksls --help`[^1].
 
-```
+```text
 Make symlinks specified in files.
 
 This program makes the symlinks specified in files within DIR having the base FILENAME.
