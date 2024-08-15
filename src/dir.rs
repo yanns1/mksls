@@ -39,9 +39,7 @@ use walkdir::WalkDir;
 /// }
 /// ```
 #[derive(Debug, Clone)]
-pub struct Dir {
-    dir: PathBuf,
-}
+pub struct Dir(PathBuf);
 
 impl Dir {
     /// Creates a new [`Dir`], but can fail.
@@ -66,7 +64,7 @@ impl Dir {
         if !dir.is_dir() {
             return Err(error::DirDoesNotExist(dir));
         }
-        Ok(Dir { dir })
+        Ok(Dir(dir))
     }
 
     /// Creates an iterator over the directory's files ([`DirFilesIter`]).
@@ -122,7 +120,7 @@ pub struct DirFilesIter {
 
 impl DirFilesIter {
     fn new(dir: &Dir) -> DirFilesIter {
-        let walk_dir = WalkDir::new(&dir.dir)
+        let walk_dir = WalkDir::new(&dir.0)
             .into_iter()
             .filter_map(Result::ok)
             .filter(|entry| entry.file_type().is_file() || entry.file_type().is_symlink())
@@ -151,7 +149,7 @@ impl DirSlsFilesIter {
     fn new(dir: &Dir, sls_filename: &str) -> DirSlsFilesIter {
         let sls_filename = String::from(sls_filename);
 
-        let walk_dir = WalkDir::new(&dir.dir)
+        let walk_dir = WalkDir::new(&dir.0)
             .into_iter()
             .filter_map(Result::ok)
             .filter(|entry| entry.file_type().is_file() || entry.file_type().is_symlink())
