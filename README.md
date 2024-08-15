@@ -1,7 +1,7 @@
 # mksls
 
 [![Build status](https://img.shields.io/github/actions/workflow/status/yanns1/mksls/build_and_test.yml?style=flat-square)](https://github.com/yanns1/mksls/actions/workflows/build_and_test.yml?query=branch%3Amain)
-[![Crates.io version](https://img.shields.io/crates/v/mksls?style=flat-square)](https://crates.io/crates/mksls)
+[![Crates.io version](https://img.shields.io/crates/v/mksls?style=flat-square&color=orange)](https://crates.io/crates/mksls)
 [![Crates.io downloads](https://img.shields.io/crates/d/mksls?style=flat-square)](https://crates.io/crates/mksls)
 [![docs.rs docs](https://img.shields.io/badge/docs-latest-blue?style=flat-square)](https://docs.rs/mksls)
 [![License](https://img.shields.io/badge/license-GPL%203.0-blue?style=flat-square)](LICENSE)
