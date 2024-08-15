@@ -16,7 +16,7 @@ use std::path::PathBuf;
 #[derive(Parser, Debug)]
 #[command(name = crate_name!())]
 #[command(version)]
-// The path of the config file depends on `confy`, which uses `directories`.
+// NOTE: The path of the config file depends on `confy`, which uses `directories`.
 // To keep up to date!
 #[command(after_help = format!("{}
 You can provide other default values for the options:
