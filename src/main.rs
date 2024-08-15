@@ -25,9 +25,9 @@ You can provide other default values for the options:
     --always-skip
     --always-backup
 in a TOML configuration file located at:
-    (Linux) $XDG_CONFIG_HOME/_project_path_ or .config/_project_path_ if $XDG_CONFIG_HOME is not set
-    (Mac) $HOME/Library/Application Support/_project_path_
-where _project_path_ is '{}/{}.toml'.
+    (Linux) $XDG_CONFIG_HOME/<project_path> or .config/<project_path> if $XDG_CONFIG_HOME is not set
+    (Mac) $HOME/Library/Application Support/<project_path>
+where <project_path> is '{}/{}.toml'.
 
 Note:
     - If you didn't write a config file yourself, one with the default values will automatically be written.
