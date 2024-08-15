@@ -1,5 +1,8 @@
+use crate::dir::Dir;
 use crate::line;
-use crate::{dir, Params};
+use crate::line::error::{NoMatchForLine, TargetDoesNotExistForLine};
+use crate::line::{Invalid, LineType};
+use crate::params::Params;
 use anyhow::Context;
 use crossterm::cursor;
 use crossterm::style::Stylize;
@@ -176,22 +179,22 @@ impl Engine {
         let mut stdout = io::stdout();
 
         match line::line_type(&line) {
-            line::LineType::Empty | line::LineType::Comment => return Ok(()),
-            line::LineType::Invalid(invalid) => match invalid {
-                line::Invalid::NoMatch => {
-                    return Err(line::error::NoMatchForLine {
+            LineType::Empty | LineType::Comment => return Ok(()),
+            LineType::Invalid(invalid) => match invalid {
+                Invalid::NoMatch => {
+                    return Err(NoMatchForLine {
                         file: sls.to_path_buf(),
                         line_no,
                     })?
                 }
-                line::Invalid::TargetDoesNotExist => {
-                    return Err(line::error::TargetDoesNotExistForLine {
+                Invalid::TargetDoesNotExist => {
+                    return Err(TargetDoesNotExistForLine {
                         file: sls.to_path_buf(),
                         line_no,
                     })?
                 }
             },
-            line::LineType::SlsSpec { target, link } => {
+            LineType::SlsSpec { target, link } => {
                 let link_str = link.to_string_lossy();
                 if !link.is_symlink() && !link.exists() {
                     unix::fs::symlink(&target, &link).with_context(|| {
@@ -325,7 +328,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
     }
 
     pub fn run(mut self) -> anyhow::Result<()> {
-        let dir = dir::Dir::build(self.params.dir.clone())?;
+        let dir = Dir::build(self.params.dir.clone())?;
         for sls in dir.iter_on_sls_files(&self.params.filename[..]) {
             self.process_file(sls)?;
         }

@@ -1,15 +1,9 @@
-pub mod cfg;
-pub mod cli;
-pub mod dir;
-pub mod engine;
-pub mod line;
-pub mod params;
-
-use crate::cfg::Config;
-use crate::cli::Cli;
-use crate::params::Params;
 use clap::{crate_name, Parser};
-use engine::Engine;
+use mksls::cfg::Config;
+use mksls::cli::Cli;
+use mksls::dir::error::{DirCreationFailed, DirDoesNotExist};
+use mksls::engine::Engine;
+use mksls::params::Params;
 use std::fs;
 
 fn main() -> anyhow::Result<()> {
@@ -18,14 +12,11 @@ fn main() -> anyhow::Result<()> {
 
     let params = Params::new(cli, cfg)?;
     if !params.dir.is_dir() {
-        Err(dir::error::DirDoesNotExist(params.dir.clone()))?;
+        Err(DirDoesNotExist(params.dir.clone()))?;
     }
     if !params.backup_dir.is_dir() {
         if let Err(err) = fs::create_dir_all(params.backup_dir.as_path()) {
-            Err(dir::error::DirCreationFailed(
-                params.backup_dir.clone(),
-                err,
-            ))?;
+            Err(DirCreationFailed(params.backup_dir.clone(), err))?;
         }
     }
 
