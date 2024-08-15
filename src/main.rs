@@ -14,7 +14,6 @@ use std::fs;
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
-#[command(name = crate_name!())]
 #[command(version)]
 // NOTE: The path of the config file depends on `confy`, which uses `directories`.
 // To keep up to date!
