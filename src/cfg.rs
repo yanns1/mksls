@@ -6,16 +6,16 @@ use std::path::PathBuf;
 /// The struct that defines the configuration file entries.
 /// It is then used with [`confy::load()`].
 pub struct Config {
-    /// Same as [`Cli::filename`].
+    /// Same as [`crate::cli::Cli::filename`].
     pub filename: String,
 
-    /// Same as [`Cli::backup_dir`].
+    /// Same as [`crate::cli::Cli::backup_dir`].
     pub backup_dir: PathBuf,
 
-    /// Same as [`Cli::always_skip`].
+    /// Same as [`crate::cli::Cli::always_skip`].
     pub always_skip: bool,
 
-    /// Same as [`Cli::always_backup`].
+    /// Same as [`crate::cli::Cli::always_backup`].
     pub always_backup: bool,
 }
 

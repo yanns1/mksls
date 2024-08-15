@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 lazy_static! {
     /// A regex to parse a line expected to contain a symlink specification.
-    static ref SLS_SPEC_RE: Regex =
+    pub static ref SLS_SPEC_RE: Regex =
         Regex::new(r#"^\s*(?<target>[^\s"]+|"[^"]+")\s+(?<link>[^\s"]+|"[^"]+")\s*$"#).unwrap();
 }
 
