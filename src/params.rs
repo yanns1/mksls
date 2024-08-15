@@ -1,8 +1,7 @@
-use std::path::PathBuf;
-
+use crate::cfg::Config;
+use crate::cli::Cli;
 use anyhow::anyhow;
-
-use crate::{Cli, Config};
+use std::path::PathBuf;
 
 /// An aggregation of configurations coming from the CLI ([`Cli`]) and the configuration file
 /// ([`Config`]).
