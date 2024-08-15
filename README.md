@@ -1,21 +1,9 @@
 # mksls
 
-<!-- Github Actions build -->
+[![Crates.io version](https://img.shields.io/crates/v/mksls?style=flat-square)](https://crates.io/crates/mksls)
+[![Build status](https://img.shields.io/github/actions/workflow/status/yanns1/mksls/build_and_test.yml?style=flat-square)](https://github.com/yanns1/mksls/actions/workflows/build_and_test.yml?query=branch%3Amain)
 
-<a href="https://github.com/yanns1/mksls/actions/workflows/build_and_test.yml?query=branch%3Amain">
-<img src="https://img.shields.io/github/actions/workflow/status/yanns1/mksls/build_and_test.yml?style=flat-square" alt="Build and tests status"/></a>
-
-<!-- Crates.io -->
-
-<a href="https://crates.io/crates/mksls">
-<img src="https://img.shields.io/crates/v/mksls?style=flat-square"
-alt="Crates.io version" /></a>
-
-<!-- Docs -->
-
-<!-- <a href="https://docs.rs/mksls"> -->
-<!-- <img src="https://img.shields.io/docsrs/mksls/latest?style=flat-square -->
-<!-- " alt="docs.rs docs" /></a> -->
+<!-- [![docs.rs docs](https://img.shields.io/docsrs/mksls/latest?style=flat-square)](https://docs.rs/mksls) -->
 
 mksls is a command-line program that makes the symlinks specified in user-defined files (see [Usecase](#usecase)).
 Unix operating systems are supported (e.g. Linux distros, MacOS), but not others (e.g. Windows).
