@@ -74,16 +74,16 @@ Everything is explained in `mksls --help`[^1].
 
 ```
 Make symlinks specified in files.
---------
-This program makes the symlinks specified in files within DIR having the base FILE.
+
+This program makes the symlinks specified in files within DIR having the base FILENAME.
 A given file contains zero or more symlink specifications, where a symlink specification is a line with the following format:
-<TARGET_PATH> <SYMLINK_PATH>
+    <TARGET_PATH> <SYMLINK_PATH>
 Notice the space in between.
 
 There can be multiple spaces, but there needs to be at least one.
 If a path contains a space, wrap it in double quotes.
 For example, if <TARGET_PATH> contains a space, write this instead:
-"<TARGET_PATH>" <SYMLINK_PATH>
+    "<TARGET_PATH>" <SYMLINK_PATH>
 If you have a double quote in one of the paths... Change it!
 
 By default, the program is interactive.
@@ -111,7 +111,6 @@ representing what has been done for that symlink:
     o : There was a conflict between the link and an existing file, and choose to [o]verwrite.
 and <link> and <target> are respectively the link and target of the symlink specification.
 
-
 Usage: mksls [OPTIONS] <DIR>
 
 Arguments:
@@ -121,26 +120,26 @@ Arguments:
 Options:
   -f, --filename <FILENAME>
           The base (name + extension) of the file(s) specifying symlinks to make.
-
+          
           By default, the name is "sls".
           If one is specified in the config file, it will be used instead.
 
   -b, --backup-dir <BACKUP_DIR>
           The backup directory in which to store the backed up files during execution.
-
+          
           By default, it is set to:
               (Linux) $XDG_CONFIG_HOME/mksls/backups/ or .config/mksls/backups/ if $XDG_CONFIG_HOME is not set
               (Mac) $HOME/Library/Application Support/mksls/backups/
 
       --always-skip
           Always skip the symlinks conflicting with an existing file.
-
+          
           This makes the program uninteractive.
           Of course, it can't be combined with --always-backup.
 
       --always-backup
           Always backup the conflicting file before replacing it by the symlink.
-
+          
           This makes the program uninteractive.
           Of course, it can't be combined with --always-skip.
 
@@ -157,9 +156,9 @@ You can provide other default values for the options:
     --always-skip
     --always-backup
 in a TOML configuration file located at:
-    (Linux) $XDG_CONFIG_HOME/_project_path_ or .config/_project_path_ if $XDG_CONFIG_HOME is not set
-    (Mac) $HOME/Library/Application Support/_project_path_
-where _project_path_ is 'mksls/mksls.toml'.
+    (Linux) $XDG_CONFIG_HOME/<project_path> or .config/<project_path> if $XDG_CONFIG_HOME is not set
+    (Mac) $HOME/Library/Application Support/<project_path>
+where <project_path> is 'mksls/mksls.toml'.
 
 Note:
     - If you didn't write a config file yourself, one with the default values will automatically be written.
