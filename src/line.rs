@@ -1,9 +1,8 @@
 pub mod error;
 
-use std::path::PathBuf;
-
 use lazy_static::lazy_static;
 use regex::Regex;
+use std::path::PathBuf;
 
 lazy_static! {
     /// A regex to parse a line expected to contain a symlink specification.

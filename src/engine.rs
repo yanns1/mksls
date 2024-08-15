@@ -1,4 +1,5 @@
 use crate::line;
+use crate::{dir, Params};
 use anyhow::Context;
 use crossterm::cursor;
 use crossterm::style::Stylize;
@@ -12,8 +13,6 @@ use std::io::Write;
 use std::os::unix;
 use std::path::Path;
 use std::path::PathBuf;
-
-use crate::{dir, Params};
 
 const INDENT: &str = "    ";
 const ACTION_HELP: &str = "[s]kip : Don't create the symlink and move on to the next one.
