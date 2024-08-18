@@ -103,6 +103,15 @@ impl Engine {
         Self { action, params }
     }
 
+    /// Skips symlink creation when conflict encountered, i.e. when `link`
+    /// already points to a file.
+    ///
+    /// Only prints feeback to the user.
+    ///
+    /// # Parameters
+    ///
+    /// * `target` - The path to the target of the symlink.
+    /// * `link` - The path to the symlink.
     fn skip(&self, target: &Path, link: &Path) {
         println!(
             "{}",
@@ -115,6 +124,26 @@ impl Engine {
         );
     }
 
+    /// Backs up the existing file at path `link`, then makes the symlink
+    /// at path `link`, pointing to `target`.
+    ///
+    /// Finally, prints feeback to the user.
+    ///
+    /// # Parameters
+    ///
+    /// * `target` - The path to the target of the symlink.
+    /// * `link` - The path to the symlink.
+    ///
+    /// # Errors
+    ///
+    /// Fails when:
+    ///
+    /// * The existing file fails to be backed up, i.e. fails to be moved
+    ///   to the backup directory.
+    /// * The symlink creation fails.
+    ///
+    /// These are `anyhow` errors, so most of the time, you just want to
+    /// propagate them.
     fn backup(&self, target: &Path, link: &Path) -> anyhow::Result<()> {
         let mut new_name;
         match link.file_stem() {
@@ -172,6 +201,25 @@ impl Engine {
         Ok(())
     }
 
+    /// Overwrites existing file at path `link` by making a symlink
+    /// at path `link` (pointing to `target`) without backup.
+    ///
+    /// Finally, prints feeback to the user.
+    ///
+    /// # Parameters
+    ///
+    /// * `target` - The path to the target of the symlink.
+    /// * `link` - The path to the symlink.
+    ///
+    /// # Errors
+    ///
+    /// Fails when:
+    ///
+    /// * The existing file fails to be removed.
+    /// * The symlink creation fails.
+    ///
+    /// These are `anyhow` errors, so most of the time, you just want to
+    /// propagate them.
     fn overwrite(&self, target: &Path, link: &Path) -> anyhow::Result<()> {
         if link.is_dir() {
             fs::remove_dir_all(link)
@@ -206,6 +254,25 @@ impl Engine {
         Ok(())
     }
 
+    /// Processes a symlink-specification file (`sls`).
+    ///
+    /// Reads `sls` line-by-line, creates the symlinks corresponding
+    /// to the symlink specifications found.
+    ///
+    /// # Parameters
+    ///
+    /// * `sls` - Path to the symlink-specification file.
+    ///
+    /// # Errors
+    ///
+    /// Fails when:
+    ///
+    /// * Opening for read of `sls` fails.
+    /// * Reading a line fails.
+    /// * Processing a line fails (see [`Engine::process_line`]).
+    ///
+    /// These are `anyhow` errors, so most of the time, you just want to
+    /// propagate them.
     fn process_file(&mut self, sls: PathBuf) -> anyhow::Result<()> {
         let file = fs::File::open(&sls).with_context(|| {
             format!("Tried to open {}, but unexpectedly failed.", sls.display())
@@ -224,6 +291,35 @@ impl Engine {
         Ok(())
     }
 
+    /// Processes a `line` from a symlink-specification file.
+    ///
+    /// The processing depends on the [`line::LineType`] of `line`.
+    ///
+    /// * If [`line::LineType::Invalid`], errors with an informative message
+    ///   for the user.
+    /// * If [`line::LineType::Empty`], does nothing and returns.
+    /// * If [`line::LineType::Comment`], does nothing and returns.
+    /// * If [`line::LineType::SlsSpec`], tries to make the symlink specified,
+    ///   or runs the interactive mahcinery in case there exists a conflicting file.
+    ///   Finally, reports to the user what has been done.
+    ///
+    /// # Parameters
+    ///
+    /// * `sls` - Path to the symlink-specification file where `line` lives.
+    /// * `line_no` - The line number of `line` in `sls`.
+    /// * `line` - Contents of the line to process.
+    ///
+    /// # Errors
+    ///
+    /// Fails when:
+    ///
+    /// * `line` is of type [`line::LineType::Invalid`].
+    /// * Symlink creation faiis.
+    /// * Reading conflicting file/symlink fails.
+    /// * Reading/writing from/to stdin/stdout fails.
+    ///
+    /// These are `anyhow` errors, so most of the time, you just want to
+    /// propagate them.
     fn process_line(&mut self, sls: &Path, line_no: u64, line: String) -> anyhow::Result<()> {
         let mut stdout = io::stdout();
 
