@@ -112,7 +112,7 @@ impl Engine {
     ///
     /// * `target` - The path to the target of the symlink.
     /// * `link` - The path to the symlink.
-    fn skip(&self, target: &Path, link: &Path) {
+    fn skip(target: &Path, link: &Path) {
         println!(
             "{}",
             format!(
@@ -131,8 +131,9 @@ impl Engine {
     ///
     /// # Parameters
     ///
-    /// * `target` - The path to the target of the symlink.
-    /// * `link` - The path to the symlink.
+    /// * `backup_dir` - Path to backup directory.
+    /// * `target` - Path to the target of the symlink.
+    /// * `link` - Path to the symlink.
     ///
     /// # Errors
     ///
@@ -144,7 +145,7 @@ impl Engine {
     ///
     /// These are `anyhow` errors, so most of the time, you just want to
     /// propagate them.
-    fn backup(&self, target: &Path, link: &Path) -> anyhow::Result<()> {
+    fn backup(backup_dir: &Path, target: &Path, link: &Path) -> anyhow::Result<()> {
         let mut new_name;
         match link.file_stem() {
             Some(file_stem) => {
@@ -169,7 +170,7 @@ impl Engine {
             }
         }
 
-        let mut backup = self.params.backup_dir.clone();
+        let mut backup = backup_dir.to_path_buf();
         backup.push(new_name);
 
         fs::rename(link, &backup).with_context(|| {
@@ -208,8 +209,8 @@ impl Engine {
     ///
     /// # Parameters
     ///
-    /// * `target` - The path to the target of the symlink.
-    /// * `link` - The path to the symlink.
+    /// * `target` - Path to the target of the symlink.
+    /// * `link` - Path to the symlink.
     ///
     /// # Errors
     ///
@@ -220,7 +221,7 @@ impl Engine {
     ///
     /// These are `anyhow` errors, so most of the time, you just want to
     /// propagate them.
-    fn overwrite(&self, target: &Path, link: &Path) -> anyhow::Result<()> {
+    fn overwrite(target: &Path, link: &Path) -> anyhow::Result<()> {
         if link.is_dir() {
             fs::remove_dir_all(link)
                 .with_context(|| format!("Failed to remove current directory {} to then make the symlink with the same path.", link.to_string_lossy()))?;
@@ -362,9 +363,11 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
 
                     if let Some(ref action) = self.action {
                         match action {
-                            Action::Skip => self.skip(&target, &link),
-                            Action::Backup => self.backup(&target, &link)?,
-                            Action::Overwrite => self.overwrite(&target, &link)?,
+                            Action::Skip => Engine::skip(&target, &link),
+                            Action::Backup => {
+                                Engine::backup(&self.params.backup_dir, &target, &link)?
+                            }
+                            Action::Overwrite => Engine::overwrite(&target, &link)?,
                         }
                         return Ok(());
                     }
@@ -396,7 +399,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                                     .execute(terminal::Clear(
                                         terminal::ClearType::FromCursorDown,
                                     ))?;
-                                self.skip(&target, &link);
+                                Engine::skip(&target, &link);
                                 break;
                             }
                             "S" => {
@@ -405,7 +408,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                                     .execute(terminal::Clear(
                                         terminal::ClearType::FromCursorDown,
                                     ))?;
-                                self.skip(&target, &link);
+                                Engine::skip(&target, &link);
                                 self.action = Some(Action::Skip);
                                 break;
                             }
@@ -415,7 +418,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                                     .execute(terminal::Clear(
                                         terminal::ClearType::FromCursorDown,
                                     ))?;
-                                self.backup(&target, &link)?;
+                                Engine::backup(&self.params.backup_dir, &target, &link)?;
                                 break;
                             }
                             "B" => {
@@ -424,7 +427,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                                     .execute(terminal::Clear(
                                         terminal::ClearType::FromCursorDown,
                                     ))?;
-                                self.backup(&target, &link)?;
+                                Engine::backup(&self.params.backup_dir, &target, &link)?;
                                 self.action = Some(Action::Backup);
                                 break;
                             }
@@ -434,7 +437,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                                     .execute(terminal::Clear(
                                         terminal::ClearType::FromCursorDown,
                                     ))?;
-                                self.overwrite(&target, &link)?;
+                                Engine::overwrite(&target, &link)?;
                                 break;
                             }
                             "O" => {
@@ -443,7 +446,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                                     .execute(terminal::Clear(
                                         terminal::ClearType::FromCursorDown,
                                     ))?;
-                                self.overwrite(&target, &link)?;
+                                Engine::overwrite(&target, &link)?;
                                 self.action = Some(Action::Overwrite);
                                 break;
                             }
