@@ -178,6 +178,7 @@ mod tests {
     use serial_test::serial;
 
     use super::*;
+    use crate::utils;
     use core::panic;
     use std::fs;
     use std::os::unix;
@@ -291,10 +292,6 @@ mod tests {
         contents
     }
 
-    fn vec_are_equal<T: Eq>(v1: &Vec<T>, v2: &Vec<T>) -> bool {
-        v1.len() == v2.len() && v1.iter().fold(true, |acc, el| acc && v2.contains(el))
-    }
-
     #[test]
     fn dir_build_errors_when_dir_does_not_exist() {
         let mut path = get_tmp_dir();
@@ -326,7 +323,7 @@ mod tests {
         let tmp_dir = Dir::build(tmp_dir).expect("tmp_dir should exist at this point");
         let files_it = tmp_dir.iter_on_files();
         let files: Vec<PathBuf> = files_it.collect();
-        assert!(vec_are_equal(&files, &expected_files));
+        assert!(utils::tests::vec_are_equal(&files, &expected_files));
     }
 
     #[serial]
@@ -347,6 +344,6 @@ mod tests {
         let tmp_dir = Dir::build(tmp_dir).expect("tmp_dir should exist at this point");
         let sls_files_it = tmp_dir.iter_on_sls_files(sls_filename);
         let sls_files: Vec<PathBuf> = sls_files_it.collect();
-        assert!(vec_are_equal(&sls_files, &expected_sls_files));
+        assert!(utils::tests::vec_are_equal(&sls_files, &expected_sls_files));
     }
 }
