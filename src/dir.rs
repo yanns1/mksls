@@ -183,7 +183,7 @@ mod tests {
     use std::os::unix;
     use std::path::PathBuf;
 
-    fn get_temp_dir() -> PathBuf {
+    fn get_tmp_dir() -> PathBuf {
         let mut tmp_dir = std::env::current_dir().unwrap();
         tmp_dir.push(".tmp");
         tmp_dir
@@ -193,7 +193,7 @@ mod tests {
         let mut contents: Vec<PathBuf> = vec![];
 
         // Check if tmp dir, exists, otherwise create it.
-        let tmp_dir = get_temp_dir();
+        let tmp_dir = get_tmp_dir();
         if !tmp_dir.exists() {
             if let Err(err) = fs::create_dir(&tmp_dir) {
                 panic!("{:?}", err);
@@ -297,7 +297,7 @@ mod tests {
 
     #[test]
     fn dir_build_errors_when_dir_does_not_exist() {
-        let mut path = get_temp_dir();
+        let mut path = get_tmp_dir();
         path.push("does_not_exist");
 
         let path_str = path.clone();
@@ -322,7 +322,7 @@ mod tests {
             .filter(|path| path.is_file() || path.is_symlink())
             .collect();
 
-        let tmp_dir = get_temp_dir();
+        let tmp_dir = get_tmp_dir();
         let tmp_dir = Dir::build(tmp_dir).expect("tmp_dir should exist at this point");
         let files_it = tmp_dir.iter_on_files();
         let files: Vec<PathBuf> = files_it.collect();
@@ -343,7 +343,7 @@ mod tests {
             })
             .collect();
 
-        let tmp_dir = get_temp_dir();
+        let tmp_dir = get_tmp_dir();
         let tmp_dir = Dir::build(tmp_dir).expect("tmp_dir should exist at this point");
         let sls_files_it = tmp_dir.iter_on_sls_files(sls_filename);
         let sls_files: Vec<PathBuf> = sls_files_it.collect();
