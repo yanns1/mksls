@@ -106,14 +106,22 @@ impl Engine {
     /// Skips symlink creation when conflict encountered, i.e. when `link`
     /// already points to a file.
     ///
-    /// Only prints feeback to the user.
+    /// Does nothing apart from writing feedback into `writer` in the form of:
+    ///
+    /// ```text
+    /// (s) <link> -> <target>
+    /// ```
+    ///
+    /// in dark blue.
     ///
     /// # Parameters
     ///
-    /// * `target` - The path to the target of the symlink.
-    /// * `link` - The path to the symlink.
-    fn skip(target: &Path, link: &Path) {
-        println!(
+    /// * `writer` - Where to write feeback to.
+    /// * `target` - Path to the target of the symlink.
+    /// * `link` - Path to the symlink.
+    fn skip<W: Write>(mut writer: W, target: &Path, link: &Path) -> anyhow::Result<()> {
+        writeln!(
+            writer,
             "{}",
             format!(
                 "(s) {} -> {}",
@@ -121,16 +129,25 @@ impl Engine {
                 target.to_string_lossy()
             )
             .dark_blue()
-        );
+        )?;
+
+        Ok(())
     }
 
     /// Backs up the existing file at path `link`, then makes the symlink
     /// at path `link`, pointing to `target`.
     ///
-    /// Finally, prints feeback to the user.
+    /// Finally, writes feeback into `writer` in the form of:
+    ///
+    /// ```text
+    /// (b) <link> -> <target>
+    /// ```
+    ///
+    /// in dark green.
     ///
     /// # Parameters
     ///
+    /// * `writer` - Where to write feedback to.
     /// * `backup_dir` - Path to backup directory.
     /// * `target` - Path to the target of the symlink.
     /// * `link` - Path to the symlink.
@@ -142,10 +159,16 @@ impl Engine {
     /// * The existing file fails to be backed up, i.e. fails to be moved
     ///   to the backup directory.
     /// * The symlink creation fails.
+    /// * Writing into `writer` fails.
     ///
     /// These are `anyhow` errors, so most of the time, you just want to
     /// propagate them.
-    fn backup(backup_dir: &Path, target: &Path, link: &Path) -> anyhow::Result<()> {
+    fn backup<W: Write>(
+        mut writer: W,
+        backup_dir: &Path,
+        target: &Path,
+        link: &Path,
+    ) -> anyhow::Result<()> {
         let mut new_name;
         match link.file_stem() {
             Some(file_stem) => {
@@ -189,7 +212,8 @@ impl Engine {
             )
         })?;
 
-        println!(
+        writeln!(
+            writer,
             "{}",
             format!(
                 "(b) {} -> {}",
@@ -197,7 +221,7 @@ impl Engine {
                 target.to_string_lossy()
             )
             .dark_green()
-        );
+        )?;
 
         Ok(())
     }
@@ -205,10 +229,15 @@ impl Engine {
     /// Overwrites existing file at path `link` by making a symlink
     /// at path `link` (pointing to `target`) without backup.
     ///
-    /// Finally, prints feeback to the user.
+    /// Finally, writes feeback into `writer` in the form of:
+    ///
+    /// ```text
+    /// (o) <link> -> <target>
+    /// ```
     ///
     /// # Parameters
     ///
+    /// * `writer` - Where to write feedback to.
     /// * `target` - Path to the target of the symlink.
     /// * `link` - Path to the symlink.
     ///
@@ -218,10 +247,11 @@ impl Engine {
     ///
     /// * The existing file fails to be removed.
     /// * The symlink creation fails.
+    /// * Writing into `writer` fails.
     ///
     /// These are `anyhow` errors, so most of the time, you just want to
     /// propagate them.
-    fn overwrite(target: &Path, link: &Path) -> anyhow::Result<()> {
+    fn overwrite<W: Write>(mut writer: W, target: &Path, link: &Path) -> anyhow::Result<()> {
         if link.is_dir() {
             fs::remove_dir_all(link)
                 .with_context(|| format!("Failed to remove current directory {} to then make the symlink with the same path.", link.to_string_lossy()))?;
@@ -242,7 +272,8 @@ impl Engine {
             )
         })?;
 
-        println!(
+        writeln!(
+            writer,
             "{}",
             format!(
                 "(o) {} -> {}",
@@ -250,7 +281,7 @@ impl Engine {
                 target.to_string_lossy()
             )
             .dark_red()
-        );
+        )?;
 
         Ok(())
     }
@@ -363,11 +394,11 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
 
                     if let Some(ref action) = self.action {
                         match action {
-                            Action::Skip => Engine::skip(&target, &link),
+                            Action::Skip => Engine::skip(stdout, &target, &link)?,
                             Action::Backup => {
-                                Engine::backup(&self.params.backup_dir, &target, &link)?
+                                Engine::backup(stdout, &self.params.backup_dir, &target, &link)?
                             }
-                            Action::Overwrite => Engine::overwrite(&target, &link)?,
+                            Action::Overwrite => Engine::overwrite(stdout, &target, &link)?,
                         }
                         return Ok(());
                     }
@@ -399,7 +430,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                                     .execute(terminal::Clear(
                                         terminal::ClearType::FromCursorDown,
                                     ))?;
-                                Engine::skip(&target, &link);
+                                Engine::skip(stdout, &target, &link)?;
                                 break;
                             }
                             "S" => {
@@ -408,7 +439,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                                     .execute(terminal::Clear(
                                         terminal::ClearType::FromCursorDown,
                                     ))?;
-                                Engine::skip(&target, &link);
+                                Engine::skip(stdout, &target, &link)?;
                                 self.action = Some(Action::Skip);
                                 break;
                             }
@@ -418,7 +449,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                                     .execute(terminal::Clear(
                                         terminal::ClearType::FromCursorDown,
                                     ))?;
-                                Engine::backup(&self.params.backup_dir, &target, &link)?;
+                                Engine::backup(stdout, &self.params.backup_dir, &target, &link)?;
                                 break;
                             }
                             "B" => {
@@ -427,7 +458,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                                     .execute(terminal::Clear(
                                         terminal::ClearType::FromCursorDown,
                                     ))?;
-                                Engine::backup(&self.params.backup_dir, &target, &link)?;
+                                Engine::backup(stdout, &self.params.backup_dir, &target, &link)?;
                                 self.action = Some(Action::Backup);
                                 break;
                             }
@@ -437,7 +468,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                                     .execute(terminal::Clear(
                                         terminal::ClearType::FromCursorDown,
                                     ))?;
-                                Engine::overwrite(&target, &link)?;
+                                Engine::overwrite(stdout, &target, &link)?;
                                 break;
                             }
                             "O" => {
@@ -446,7 +477,7 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
                                     .execute(terminal::Clear(
                                         terminal::ClearType::FromCursorDown,
                                     ))?;
-                                Engine::overwrite(&target, &link)?;
+                                Engine::overwrite(stdout, &target, &link)?;
                                 self.action = Some(Action::Overwrite);
                                 break;
                             }
