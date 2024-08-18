@@ -193,13 +193,15 @@ mod tests {
     fn mk_tmp_contents() -> Vec<PathBuf> {
         let mut contents: Vec<PathBuf> = vec![];
 
-        // Check if tmp dir, exists, otherwise create it.
+        // Create tmp dir.
         let tmp_dir = get_tmp_dir();
-        if !tmp_dir.exists() {
-            if let Err(err) = fs::create_dir(&tmp_dir) {
-                panic!("{:?}", err);
-            }
+        if tmp_dir.exists() {
+            // Remove tmp dir to recreate it later.
+            // This is to ensure the tmp dir is in the state
+            // we want it to.
+            fs::remove_dir_all(&tmp_dir).unwrap();
         }
+        fs::create_dir(&tmp_dir).unwrap();
         contents.push(tmp_dir.clone());
 
         // Make a few files...
