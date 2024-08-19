@@ -536,3 +536,35 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::str;
+
+    #[test]
+    fn skip_feeback_has_right_format() {
+        let mut feedback = vec![];
+        let target = PathBuf::from("/target");
+        let link = PathBuf::from("/link");
+
+        Engine::skip(&mut feedback, &target, &link)
+            .expect("Expected to be able to write into `feedback`.");
+        let feedback = str::from_utf8(&feedback[..]).expect("Should be valid utf-8 characters.");
+
+        let expected_feedback = format!(
+            "(s) {} -> {}",
+            link.to_string_lossy(),
+            target.to_string_lossy()
+        )
+        .dark_blue()
+        .to_string();
+
+        assert!(
+            feedback.contains(&expected_feedback[..]),
+            "Expected '{}' to contain '{}'.",
+            feedback,
+            expected_feedback,
+        );
+    }
+}
