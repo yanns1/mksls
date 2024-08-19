@@ -540,10 +540,14 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
 #[cfg(test)]
 mod tests {
     use super::*;
+    use assert_fs::fixture::NamedTempFile;
+    use assert_fs::fixture::TempDir;
+    use assert_fs::prelude::*;
+    use std::path::PathBuf;
     use std::str;
 
     #[test]
-    fn skip_feeback_has_right_format() {
+    fn skip_feedback_has_right_format() {
         let mut feedback = vec![];
         let target = PathBuf::from("/target");
         let link = PathBuf::from("/link");
@@ -566,5 +570,40 @@ mod tests {
             feedback,
             expected_feedback,
         );
+    }
+
+    #[test]
+    fn backup_feedback_has_right_format() -> Result<(), Box<dyn std::error::Error>> {
+        let mut feedback = vec![];
+        let backup_dir = TempDir::new()?;
+        let target = NamedTempFile::new("target")?;
+        target.touch()?;
+        let link = NamedTempFile::new("link")?;
+        link.symlink_to_file(&target)?;
+
+        Engine::backup(&mut feedback, &backup_dir, &target, &link)?;
+        let feedback = str::from_utf8(&feedback[..]).expect("Should be valid utf-8 characters.");
+
+        let expected_feedback = format!(
+            "(b) {} -> {}",
+            link.to_string_lossy(),
+            target.to_string_lossy()
+        )
+        .dark_green()
+        .to_string();
+
+        assert!(
+            feedback.contains(&expected_feedback[..]),
+            "Expected '{}' to contain '{}'.",
+            feedback,
+            expected_feedback,
+        );
+
+        // Ensure deletion happens.
+        backup_dir.close()?;
+        target.close()?;
+        link.close()?;
+
+        Ok(())
     }
 }
