@@ -580,15 +580,15 @@ mod tests {
         let backup_dir = TempDir::new()?;
         let target = NamedTempFile::new("target")?;
         target.touch()?;
-        let link = NamedTempFile::new("link")?;
-        link.symlink_to_file(&target)?;
+        let conflicting_file = NamedTempFile::new("conflicting_file")?;
+        conflicting_file.write_str("Contents of conflicting file.")?;
 
-        Engine::backup(&mut feedback, &backup_dir, &target, &link)?;
+        Engine::backup(&mut feedback, &backup_dir, &target, &conflicting_file)?;
         let feedback = str::from_utf8(&feedback[..]).expect("Should be valid utf-8 characters.");
 
         let expected_feedback = format!(
             "(b) {} -> {}",
-            link.to_string_lossy(),
+            conflicting_file.to_string_lossy(),
             target.to_string_lossy()
         )
         .dark_green()
@@ -604,7 +604,10 @@ mod tests {
         // Ensure deletion happens.
         backup_dir.close()?;
         target.close()?;
-        link.close()?;
+        conflicting_file.close()?;
+
+        Ok(())
+    }
 
     #[test]
     fn backup_backs_up_file_as_expected() -> Result<(), Box<dyn std::error::Error>> {
