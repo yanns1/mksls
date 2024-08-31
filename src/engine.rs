@@ -655,4 +655,21 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn backup_fails_when_no_conflicting_file() -> Result<(), Box<dyn std::error::Error>> {
+        let mut feedback = vec![];
+        let backup_dir = TempDir::new()?;
+        // Do not touch or write to `conflicting_file` so that it doesn't actually exist in the file system.
+        let conflicting_file = NamedTempFile::new("conflicting_file")?;
+        let target = NamedTempFile::new("target")?;
+
+        assert!(Engine::backup(&mut feedback, &backup_dir, &target, &conflicting_file).is_err());
+
+        // Ensure deletion happens.
+        backup_dir.close()?;
+        target.close()?;
+
+        Ok(())
+    }
 }
