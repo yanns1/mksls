@@ -540,9 +540,11 @@ Nothing was done. Check for a problem and rerun this program.", link_str))?
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::dir::Dir;
     use assert_fs::fixture::NamedTempFile;
     use assert_fs::fixture::TempDir;
     use assert_fs::prelude::*;
+    use predicates::prelude::*;
     use std::path::PathBuf;
     use std::str;
 
@@ -603,6 +605,50 @@ mod tests {
         backup_dir.close()?;
         target.close()?;
         link.close()?;
+
+    #[test]
+    fn backup_backs_up_file_as_expected() -> Result<(), Box<dyn std::error::Error>> {
+        let mut feedback = vec![];
+        let backup_dir = TempDir::new()?;
+        let dir = TempDir::new()?;
+        let conflicting_file_name = "link";
+        let conflicting_file = dir.child(conflicting_file_name);
+        let conflicting_file_contents = "Contents of conflicting file.";
+        conflicting_file.write_str(conflicting_file_contents)?;
+        let target = NamedTempFile::new("target")?;
+        target.touch()?;
+
+        Engine::backup(&mut feedback, &backup_dir, &target, &conflicting_file)?;
+
+        // Check that a file containing the name of `conflicting_file` exists in `backup_dir`.
+        let d = Dir::build(backup_dir.to_path_buf())
+            .expect("Path of `backup_dir` should be valid at this point.");
+        let mut at_least_one_file_containing_conflicting_file_name = false;
+        let mut backup_file: Option<PathBuf> = None;
+        for file in d.iter_on_files() {
+            if file
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .contains(conflicting_file_name)
+            {
+                backup_file = Some(file.clone());
+                at_least_one_file_containing_conflicting_file_name = true;
+            }
+        }
+        assert!(at_least_one_file_containing_conflicting_file_name);
+
+        // Check that `backup_file` has the contents of the conflicting file.
+        let backup_file = backup_file.expect(
+            "Should have found a file containing the name of `conflicting_file` in `backup_dir`.",
+        );
+        let backup_file_contents = std::fs::read_to_string(backup_file)?;
+        assert_eq!(backup_file_contents, conflicting_file_contents);
+
+        // Ensure deletion happens.
+        backup_dir.close()?;
+        dir.close()?;
+        target.close()?;
 
         Ok(())
     }
