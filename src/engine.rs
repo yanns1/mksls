@@ -672,4 +672,39 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn overwrite_feedback_has_right_format() -> Result<(), Box<dyn std::error::Error>> {
+        let mut feedback = vec![];
+        let backup_dir = TempDir::new()?;
+        let target = NamedTempFile::new("target")?;
+        target.touch()?;
+        let conflicting_file = NamedTempFile::new("conflicting_file")?;
+        conflicting_file.write_str("Contents of conflicting file.")?;
+
+        Engine::overwrite(&mut feedback, &target, &conflicting_file)?;
+        let feedback = str::from_utf8(&feedback[..]).expect("Should be valid utf-8 characters.");
+
+        let expected_feedback = format!(
+            "(o) {} -> {}",
+            conflicting_file.to_string_lossy(),
+            target.to_string_lossy()
+        )
+        .dark_red()
+        .to_string();
+
+        assert!(
+            feedback.contains(&expected_feedback[..]),
+            "Expected '{}' to contain '{}'.",
+            feedback,
+            expected_feedback,
+        );
+
+        // Ensure deletion happens.
+        backup_dir.close()?;
+        target.close()?;
+        conflicting_file.close()?;
+
+        Ok(())
+    }
 }
