@@ -709,4 +709,30 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn overwrite_overwrites_file_as_expected() -> Result<(), Box<dyn std::error::Error>> {
+        let mut feedback = vec![];
+        let conflicting_file_name = "link";
+        let conflicting_file = NamedTempFile::new(conflicting_file_name)?;
+        let conflicting_file_contents = "Contents of conflicting file.";
+        conflicting_file.write_str(conflicting_file_contents)?;
+        let target = NamedTempFile::new("target")?;
+        target.touch()?;
+
+        Engine::overwrite(&mut feedback, &target, &conflicting_file)?;
+
+        // Check that a symlink to `target` exists in place of `conflicting_file`.
+        assert!(predicate::path::is_symlink().eval(&conflicting_file));
+        assert_eq!(
+            std::fs::canonicalize(&conflicting_file).unwrap(),
+            target.path()
+        );
+
+        // Ensure deletion happens.
+        target.close()?;
+        conflicting_file.close()?;
+
+        Ok(())
+    }
 }
