@@ -235,6 +235,8 @@ impl Engine {
     /// (o) <link> -> <target>
     /// ```
     ///
+    /// in dark red.
+    ///
     /// # Parameters
     ///
     /// * `writer` - Where to write feedback to.
