@@ -735,4 +735,21 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn overwrite_fails_when_no_conflicting_file() -> Result<(), Box<dyn std::error::Error>> {
+        let mut feedback = vec![];
+        // Do not touch or write to `conflicting_file` so that it doesn't actually exist in the file system.
+        let conflicting_file = NamedTempFile::new("conflicting_file")?;
+        let target = NamedTempFile::new("target")?;
+        target.touch()?;
+
+        assert!(Engine::overwrite(&mut feedback, &target, &conflicting_file).is_err());
+
+        // Ensure deletion happens.
+        conflicting_file.close()?;
+        target.close()?;
+
+        Ok(())
+    }
 }
