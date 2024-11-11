@@ -334,7 +334,7 @@ impl Engine {
     /// * If [`line::LineType::Empty`], does nothing and returns.
     /// * If [`line::LineType::Comment`], does nothing and returns.
     /// * If [`line::LineType::SlsSpec`], tries to make the symlink specified,
-    ///   or runs the interactive mahcinery in case there exists a conflicting file.
+    ///   or runs the interactive machinery in case there exists a conflicting file.
     ///   Finally, reports to the user what has been done.
     ///
     /// # Parameters
