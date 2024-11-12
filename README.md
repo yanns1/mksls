@@ -165,7 +165,29 @@ Note:
 
 ## TODO
 
-- Make shell completions (but too cumbersome for now).
-- Integration tests
+- *Make shell completions*: Seems to cumbersome.
+
+- *Integration tests*: Cumbersome given that many uses of the app are interactive.
+  Furthermore, the codebase is relatively small, so I am rather confident in it.
+  But in case I want to do integration tests, here are useful ideas:
+
+  - Before starting to write tests, think about what is worth testing, partition
+    the input space wisely.
+  - Making the application's code more generic can help for testing (for example
+    being generic over `Read` and `Write` traits).
+    See <https://rust-cli.github.io/book/tutorial/testing.html>.
+  - [assert_fs](https://docs.rs/assert_fs/latest/assert_fs/): Filesystem fixtures
+    and assertions for testing.
+  - [assert_cmd](https://docs.rs/assert_cmd/latest/assert_cmd/): Easy command
+    initialization and assertions.
+  - [predicates](https://docs.rs/predicates/latest/predicates/): Composable
+    first-order predicate functions.
+  - [lit](https://docs.rs/lit/latest/lit/): A reusable testing tool, inspired by
+    LLVM’s lit tool. It defines a DSL for matching text outputs easily.
+    See <https://www.neilhenning.dev/posts/rust-lit/> also.
+  - [rexpect](https://docs.rs/rexpect/latest/rexpect/): Assert against the output
+    of an interactive CLI, and send input back to it. See
+    <https://www.rustadventure.dev/building-a-digital-garden-cli/clap-v4/testing-interactive-clis-with-rexpect>
+    for a simple tutorial.
 
 [^1]: In fact the full help is so detailed that you will certainly prefer the shorter version from `mksls -h` once you get the gist of it.
