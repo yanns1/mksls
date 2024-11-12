@@ -49,7 +49,7 @@ impl Dir {
     ///
     /// # Parameters
     ///
-    /// * `dir` - The path to the directory.
+    /// - `dir`: The path to the directory.
     ///
     /// # Examples
     ///
@@ -90,7 +90,7 @@ impl Dir {
     ///
     /// # Parameters
     ///
-    /// * `sls_filename` - The filename (name + extension) to look for.
+    /// - `sls_filename`: The filename (name + extension) to look for.
     ///
     ///     Files with a filename equal to `sls_filename` will be considered
     ///     "symlink-specification" files.

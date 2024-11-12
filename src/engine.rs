@@ -62,7 +62,7 @@ impl Engine {
     ///
     /// # Parameters
     ///
-    /// * `params` - Parameters to customize the engine's behavior.
+    /// - `params`: Parameters to customize the engine's behavior.
     ///
     /// # Examples
     ///
@@ -100,15 +100,15 @@ impl Engine {
     ///
     /// # Parameters
     ///
-    /// * `sls` - Path to the symlink-specification file.
+    /// - `sls`: Path to the symlink-specification file.
     ///
     /// # Errors
     ///
     /// Fails when:
     ///
-    /// * Opening for read of `sls` fails.
-    /// * Reading a line fails.
-    /// * Processing a line fails (see [`Engine::process_line`]).
+    /// - Opening for read of `sls` fails.
+    /// - Reading a line fails.
+    /// - Processing a line fails (see [`Engine::process_line`]).
     ///
     /// These are `anyhow` errors, so most of the time, you just want to
     /// propagate them.
@@ -134,28 +134,28 @@ impl Engine {
     ///
     /// The processing depends on the [`line::LineType`] of `line`.
     ///
-    /// * If [`line::LineType::Invalid`], errors with an informative message
+    /// - If [`line::LineType::Invalid`], errors with an informative message
     ///   for the user.
-    /// * If [`line::LineType::Empty`], does nothing and returns.
-    /// * If [`line::LineType::Comment`], does nothing and returns.
-    /// * If [`line::LineType::SlsSpec`], tries to make the symlink specified,
+    /// - If [`line::LineType::Empty`], does nothing and returns.
+    /// - If [`line::LineType::Comment`], does nothing and returns.
+    /// - If [`line::LineType::SlsSpec`], tries to make the symlink specified,
     ///   or runs the interactive machinery in case there exists a conflicting file.
     ///   Finally, reports to the user what has been done.
     ///
     /// # Parameters
     ///
-    /// * `sls` - Path to the symlink-specification file where `line` lives.
-    /// * `line_no` - The line number of `line` in `sls`.
-    /// * `line` - Contents of the line to process.
+    /// - `sls`: Path to the symlink-specification file where `line` lives.
+    /// - `line_no`: The line number of `line` in `sls`.
+    /// - `line`: Contents of the line to process.
     ///
     /// # Errors
     ///
     /// Fails when:
     ///
-    /// * `line` is of type [`line::LineType::Invalid`].
-    /// * Symlink creation faiis.
-    /// * Reading conflicting file/symlink fails.
-    /// * Reading/writing from/to stdin/stdout fails.
+    /// - `line` is of type [`line::LineType::Invalid`].
+    /// - Symlink creation faiis.
+    /// - Reading conflicting file/symlink fails.
+    /// - Reading/writing from/to stdin/stdout fails.
     ///
     /// These are `anyhow` errors, so most of the time, you just want to
     /// propagate them.

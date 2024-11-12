@@ -27,9 +27,9 @@ pub fn trim_newline(s: &mut String) {
 ///
 /// # Parameters
 ///
-/// * `writer` - Where to write feeback to.
-/// * `target` - Path to the target of the symlink.
-/// * `link` - Path to the symlink.
+/// - `writer`: Where to write feeback to.
+/// - `target`: Path to the target of the symlink.
+/// - `link`: Path to the symlink.
 pub fn skip<W: Write>(mut writer: W, target: &Path, link: &Path) -> anyhow::Result<()> {
     writeln!(
         writer,
@@ -58,19 +58,19 @@ pub fn skip<W: Write>(mut writer: W, target: &Path, link: &Path) -> anyhow::Resu
 ///
 /// # Parameters
 ///
-/// * `writer` - Where to write feedback to.
-/// * `backup_dir` - Path to backup directory.
-/// * `target` - Path to the target of the symlink.
-/// * `link` - Path to the symlink.
+/// - `writer`: Where to write feedback to.
+/// - `backup_dir`: Path to backup directory.
+/// - `target`: Path to the target of the symlink.
+/// - `link`: Path to the symlink.
 ///
 /// # Errors
 ///
 /// Fails when:
 ///
-/// * The existing file fails to be backed up, i.e. fails to be moved
+/// - The existing file fails to be backed up, i.e. fails to be moved
 ///   to the backup directory.
-/// * The symlink creation fails.
-/// * Writing into `writer` fails.
+/// - The symlink creation fails.
+/// - Writing into `writer` fails.
 ///
 /// These are `anyhow` errors, so most of the time, you just want to
 /// propagate them.
@@ -150,17 +150,17 @@ pub fn backup<W: Write>(
 ///
 /// # Parameters
 ///
-/// * `writer` - Where to write feedback to.
-/// * `target` - Path to the target of the symlink.
-/// * `link` - Path to the symlink.
+/// - `writer`: Where to write feedback to.
+/// - `target`: Path to the target of the symlink.
+/// - `link`: Path to the symlink.
 ///
 /// # Errors
 ///
 /// Fails when:
 ///
-/// * The existing file fails to be removed.
-/// * The symlink creation fails.
-/// * Writing into `writer` fails.
+/// - The existing file fails to be removed.
+/// - The symlink creation fails.
+/// - Writing into `writer` fails.
 ///
 /// These are `anyhow` errors, so most of the time, you just want to
 /// propagate them.
