@@ -1,8 +1,6 @@
 //! Types and functions for parsing a line in a symlink-specification file and extracting
 //! the relevant contents.
 
-pub mod error;
-
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::path::PathBuf;

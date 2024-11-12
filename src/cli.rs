@@ -35,16 +35,15 @@ However it can be made uninteractive by using one (and only one) of these option
     --always-backup (equivalent to always selecting 'b')
 There is no --always-overwrite for you to not regret it.
 
-The output of the command will always be a sequence of lines where each line has the format:
+For each processed symlink specification, a line with the following format is printed:
     (<action>) <link> -> <target>
-One such line is printed for each symlink specification encountered, with <action> being one character
-representing what has been done for that symlink:
+where <action> encodes what has been done for that symlink:
     . : Already existed, so has been skipped.
     d : Done. The symlink was successfully created.
     s : There was a conflict between the link and an existing file, and choose to [s]kip.
     b : There was a conflict between the link and an existing file, and choose to [b]ackup.
     o : There was a conflict between the link and an existing file, and choose to [o]verwrite.
-and <link> and <target> are respectively the link and target of the symlink specification.")]
+(<link> and <target> are respectively the link and target of the symlink specification)")]
 // NOTE: The path of the config file depends on `confy`, which uses `directories`.
 // To keep up to date!
 #[command(after_help = format!("{}

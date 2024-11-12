@@ -82,7 +82,7 @@ Notice the space in between.
 There can be multiple spaces, but there needs to be at least one.
 If a path contains a space, wrap it in double quotes.
 For example, if <TARGET_PATH> contains a space, write this instead:
-    "<TARGET_PATH>" <SYMLINK_PATH>
+     "<TARGET_PATH>" <SYMLINK_PATH>
 If you have a double quote in one of the paths... Change it!
 
 By default, the program is interactive.
@@ -99,16 +99,15 @@ However it can be made uninteractive by using one (and only one) of these option
     --always-backup (equivalent to always selecting 'b')
 There is no --always-overwrite for you to not regret it.
 
-The output of the command will always be a sequence of lines where each line has the format:
+For each processed symlink specification, a line with the following format is printed:
     (<action>) <link> -> <target>
-One such line is printed for each symlink specification encountered, with <action> being one character
-representing what has been done for that symlink:
+where <action> encodes what has been done for that symlink:
     . : Already existed, so has been skipped.
     d : Done. The symlink was successfully created.
     s : There was a conflict between the link and an existing file, and choose to [s]kip.
     b : There was a conflict between the link and an existing file, and choose to [b]ackup.
     o : There was a conflict between the link and an existing file, and choose to [o]verwrite.
-and <link> and <target> are respectively the link and target of the symlink specification.
+(<link> and <target> are respectively the link and target of the symlink specification)
 
 Usage: mksls [OPTIONS] <DIR>
 
@@ -119,26 +118,26 @@ Arguments:
 Options:
   -f, --filename <FILENAME>
           The base (name + extension) of the file(s) specifying symlinks to make.
-          
+
           By default, the name is "sls".
           If one is specified in the config file, it will be used instead.
 
   -b, --backup-dir <BACKUP_DIR>
           The backup directory in which to store the backed up files during execution.
-          
+
           By default, it is set to:
               (Linux) $XDG_CONFIG_HOME/mksls/backups/ or .config/mksls/backups/ if $XDG_CONFIG_HOME is not set
               (Mac) $HOME/Library/Application Support/mksls/backups/
 
       --always-skip
           Always skip the symlinks conflicting with an existing file.
-          
+
           This makes the program uninteractive.
           Of course, it can't be combined with --always-backup.
 
       --always-backup
           Always backup the conflicting file before replacing it by the symlink.
-          
+
           This makes the program uninteractive.
           Of course, it can't be combined with --always-skip.
 
