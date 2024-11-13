@@ -9,6 +9,9 @@ repository = "https://github.com/yanns1/mksls"
 license = "GPL-3.0"
 keyworks = ["symlinks", "dotfiles"]
 categories = ["command-line-utilities"]
+exclude = [
+    ".github/*",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
