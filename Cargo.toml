@@ -7,7 +7,7 @@ description = "Make symlinks specified in files."
 readme = "README.md"
 repository = "https://github.com/yanns1/mksls"
 license = "GPL-3.0"
-keyworks = ["symlinks", "dotfiles"]
+keywords = ["symlinks", "dotfiles"]
 categories = ["command-line-utilities"]
 exclude = [
     ".github/*",
